@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KuKula Study Planner - Figma Storyboard Canvas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1D63B8;
+      --primary-light: #EBF3FC;
+      --success: #22C55E;
+      --success-light: #F0FDF4;
+      --warning: #F59E0B;
+      --warning-light: #FEF3C7;
+      --danger: #EF4444;
+      --danger-light: #FEF2F2;
+      --danger-text: #E05A47;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --bg-main: #FFFFFF;
+      --bg-card: #F8FAFC;
+      --border-color: #E2E8F0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #121214;
+      color: #FFFFFF;
+      padding: 40px;
+      overflow: auto;
+      min-height: 100vh;
+    }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; }
+    
+    .storyboard-header {
+      max-width: 1400px;
+      margin: 0 auto 40px auto;
+      border-bottom: 1px solid #27272A;
+      padding-bottom: 24px;
+    }
+    .storyboard-header h1 { font-size: 32px; font-weight: 800; }
+    .storyboard-header p { color: #71717A; font-size: 14px; margin-top: 6px; }
+    
+    .storyboard-grid {
+      display: flex;
+      gap: 48px;
+      padding-bottom: 40px;
+      width: max-content;
+    }
+    .storyboard-item {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      width: 375px;
+    }
+    .storyboard-screen-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #A1A1AA;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Phone frame */
+    .iphone-15 {
+      width: 375px;
+      height: 812px;
+      background-color: #000000;
+      border-radius: 48px;
+      position: relative;
+      box-shadow: 0px 20px 40px rgba(0,0,0,0.5), inset 0px 0px 4px 6px #2E2E33;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .iphone-speaker {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 4px;
+      background-color: #1A1A1A;
+      border-radius: 9999px;
+      z-index: 999;
+    }
+    .iphone-screen {
+      width: 100%;
+      height: 100%;
+      background-color: #FFFFFF;
+      border-radius: 36px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      color: #0F172A;
+    }
+    
+    .screen-status-bar {
+      height: 44px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .screen-status-bar.dark-theme { color: #FFFFFF; }
+    .status-icons { display: flex; gap: 6px; align-items: center; }
+    
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .screen-content::-webkit-scrollbar { display: none; }
+    
+    /* App Components */
+    .app-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      width: 100%;
+      border: none;
+      cursor: pointer;
+      gap: 8px;
+    }
+    .app-btn-primary { background-color: var(--primary); color: #FFFFFF; }
+    .app-btn-outline { background: none; border: 1px solid var(--border-color); color: var(--text-main); }
+    .app-card { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm); }
+    .app-card-gray { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; }
+    .app-input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); font-size: 14px; outline: none; }
+    
+    .app-bottom-nav {
+      height: 76px;
+      background: #FFFFFF;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: 12px;
+      flex-shrink: 0;
+    }
+    .app-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      width: 50px;
+      background: none;
+      border: none;
+    }
+    .app-nav-item.active { color: var(--primary); }
+    .app-nav-icon { width: 20px; height: 20px; }
+    .app-nav-label { font-size: 10px; font-weight: 700; }
+    .app-fab-container { position: relative; width: 50px; display: flex; justify-content: center; }
+    .app-fab { width: 48px; height: 48px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; position: absolute; bottom: -6px; color: white; font-size: 24px; border: none; }
+    
+    .app-checkbox { width: 20px; height: 20px; border-radius: 5px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; background: #FFFFFF; }
+    .app-checkbox.checked { background: var(--primary); border-color: var(--primary); }
+    .app-checkbox.checked::after { content: '✓'; color: white; font-size: 12px; font-weight: bold; }
+    
+    .subject-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--text-muted); }
+    .subject-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .status-pill-offline { background-color: var(--danger-light); color: var(--danger-text); border: 1px solid #FCA5A5; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
+    
+    /* Stepper dot */
+    .app-stepper { display: flex; gap: 6px; justify-content: center; margin-top: 12px; }
+    .app-step-dot { width: 6px; height: 6px; border-radius: 50%; background: #E2E8F0; }
+    .app-step-dot.active { background: var(--primary); width: 16px; border-radius: 3px; }
+
+    /* Annotations (Pink Boxes) */
+    .storyboard-annotation {
+      background-color: #FFF1F2;
+      border: 1px solid #FFE4E6;
+      padding: 14px 18px;
+      border-radius: 12px;
+      width: 100%;
+      color: #E11D48;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .storyboard-annotation strong {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      color: #BE123C;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="storyboard-header">
+    <h1>KuKula - Figma Storyboard Canvas</h1>
+    <p>Panoramic review of all 10 high-fidelity screens aligned with exact Don Norman Principles & Jakob Nielsen Heuristics.</p>
+  </header>
+
+  <main class="storyboard-grid">
+
+    <!-- 0. LOGIN -->
+    <div class="storyboard-item">
+      <span class="storyboard-screen-title">0. Login</span>
+      <div class="iphone-15">
+        <div class="iphone-speaker"></div>
+        <div class="iphone-screen">
+          <div class="screen-status-bar"><span>9:41</span><div class="status-icons"><span>LTE</span><span>100%</span></div></div>
+          <div class="screen-content" style="padding: 24px; justify-content: space-between; text-align: center;">
+            <div></div>
+            <div>
+              <div style="width:96px; height:96px; background:#FFFFFF; border-radius:22px; display:flex; align-items:center; justify-content:center; margin:0 auto 24px; border:1px solid #E2E8F0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <div style="width:64px; height:64px; border-radius:14px; background:var(--primary); display:flex; align-items:center; justify-content:center; color:white; font-size:32px; font-weight:800;">K</div>
+              </div>
+              <h2 style="font-size:32px; font-weight:800; color:#0F172A; margin-bottom:8px;">KuKula</h2>
+              <p style="font-size:14px; color:var(--text-muted);">Your smart academic companion</p>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px; width:100%;">
+              <button class="app-btn app-btn-primary">Log in with University Email</button>
+              <div style="font-size:12px; color:var(--text-muted); margin: 4px 0;">or</div>
+              <button class="app-btn app-btn-outline"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width:16px;" alt=""> Continue with Google</button>
+              <button class="app-btn app-btn-outline"><img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" style="width:14px; margin-bottom:2px;" alt=""> Continue with Apple</button>
+            </div>
+            <div>
+              <a href="#" style="color:var(--primary); font-weight:700; font-size:14px; text-decoration:none; display:block; margin-bottom:16px;">Preview as Guest Mode</a>
+              <div style="border-top:1px solid #F1F5F9; padding-top:14px; display:flex; justify-content:center; gap:6px;">
+                <span class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700; background-color:var(--primary-light); border-color:var(--primary); color:var(--primary);">English</span>
+                <span class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;">Português</span>
+                <span class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;">Changana</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="storyboard-annotation">
+        <strong>Nielsen: User Control & Freedom</strong>
+        Recognition over Recall with Institutional Login. Guest mode allows preview without data commitment.
+      </div>
+    </div>
+
+    <!-- 1. ONBOARDING -->
+    <div class="storyboard-item">
+      <span class="storyboard-screen-title">1. Onboarding</span>
+      <div class="iphone-15">
+        <div class="iphone-speaker"></div>
+        <div class="iphone-screen">
+          <div class="screen-status-bar"><span>9:41</span><div class="status-icons"><span>LTE</span><span>100%</span></div></div>
+          <div class="screen-content" style="padding:24px 20px 20px 20px; justify-content:space-between;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>&lt;</span>
+              <div style="width:24px; height:24px; background:var(--primary-light); border-radius:6px; display:flex; align-items:center; justify-content:center;"><span style="color:var(--primary); font-size:10px; font-weight:800;">K</span></div>
+              <div style="width:20px;"></div>
+            </div>
+            <div style="text-align:center; margin-top:10px;">
+              <h2 style="font-size:24px; font-weight:800; color:#0F172A; margin-bottom:8px;">Build your plan.</h2>
+              <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">Tell us what you're studying at USTM this semester to generate a smart mental model.</p>
+            </div>
+            <div>
+              <label style="font-size:12px; font-weight:800; color:#0F172A; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:12px;">Select core subjects</label>
+              <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                <span class="app-btn-outline" style="padding:8px 14px; font-size:12px; border-radius:20px; width:auto; background-color:var(--primary-light); border-color:var(--primary); color:var(--primary); font-weight:700;">Artificial Intelligence</span>
+                <span class="app-btn-outline" style="padding:8px 14px; font-size:12px; border-radius:20px; width:auto; background-color:var(--primary-light); border-color:var(--primary); color:var(--primary); font-weight:700;">Blockchain</span>
+                <span class="app-btn-outline" style="padding:8px 14px; font-size:12px; border-radius:20px; width:auto;">Cybersecurity</span>
+                <span class="app-btn-outline" style="padding:8px 14px; font-size:12px; border-radius:20px; width:auto;">Cloud Computing</span>
+                <span class="app-btn-outline" style="padding:8px 14px; font-size:12px; border-radius:20px; width:auto;">Big Data Analytics</span>
+                <span class="app-btn-outline" style="padding:8px 14px; font-size:12px; border-radius:20px; width:auto;">HCI</span>
+                <span class="app-btn-outline" style="padding:8px 14px; font-size:12px; border-radius:20px; width:auto; border-style:dashed;">+ Customizar</span>
+              </div>
+            </div>
+            <div class="app-card-gray" style="border:1px dashed var(--primary); background-color:#F0F7FF; padding:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <h4 style="font-size:13px; font-weight:700; color:#0F172A; margin-bottom:2px;">Link SIGES Portal</h4>
+                  <p style="font-size:11px; color:var(--text-muted);">Import your class timetable</p>
+                </div>
+                <span style="font-size:11px; font-weight:700; color:var(--primary); cursor:pointer;">Connect</span>
+              </div>
+            </div>
+            <div>
+              <button class="app-btn app-btn-primary">Continue to Dashboard</button>
+              <div class="app-stepper"><span class="app-step-dot active"></span><span class="app-step-dot"></span><span class="app-step-dot"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="storyboard-annotation">
+        <strong>Norman & Gestalt</strong>
+        Mental Model (Stepper) & Common Region (Card)
+      </div>
+    </div>
+
+    <!-- 2. DASHBOARD -->
+    <div class="storyboard-item">
+      <span class="storyboard-screen-title">2. Dashboard</span>
+      <div class="iphone-15">
+        <div class="iphone-speaker"></div>
+        <div class="iphone-screen">
+          <div class="screen-status-bar"><span>9:41</span><div class="status-icons"><span>LTE</span><span>100%</span></div></div>
+          <div class="screen-content" style="padding: 16px 20px 0 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <div class="status-pill-offline"><span style="width:6px; height:6px; background-color:var(--danger); border-radius:50%;"></span>Offline Mode</div>
+              <div style="width:36px; height:36px; border-radius:50%; background:#E2E8F0; overflow:hidden;"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=João" style="width:100%;" alt=""></div>
+            </div>
+            <div style="margin-bottom:14px;">
+              <h2 style="font-size:22px; font-weight:800; color:#0F172A;">Bom dia, João!</h2>
+              <p style="font-size:13px; color:var(--text-muted); margin-top:2px;">You have 3 tasks remaining</p>
+            </div>
+            <div style="display:flex; background-color:#F1F5F9; padding:3px; border-radius:10px; margin-bottom:12px;">
+              <span class="app-btn-outline" style="flex:1; border:none; padding:6px; font-size:11px; font-weight:700; border-radius:8px; text-align:center; background-color:#FFF; color:#000; box-shadow:0 1px 3px rgba(0,0,0,0.05);">Today</span>
+              <span style="flex:1; padding:6px; font-size:11px; font-weight:700; color:var(--text-muted); text-align:center;">Upcoming</span>
+              <span style="flex:1; padding:6px; font-size:11px; font-weight:700; color:var(--text-muted); text-align:center;">Done</span>
+            </div>
+            <div class="app-card" style="margin-bottom:16px;">
+              <div style="display:flex; gap:12px; align-items:flex-start;">
+                <div class="app-checkbox"></div>
+                <div style="flex:1;">
+                  <h4 style="font-size:13px; font-weight:700; color:#0F172A; margin-bottom:4px;">Read "Artificial Intelligence" Ch 4</h4>
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="subject-badge"><span class="subject-dot" style="background-color:var(--ai-color);"></span>Artificial Intelligence</span>
+                    <span class="app-btn-outline" style="padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700; border-color:#FED7AA; background-color:#FFEDD5; color:#C2410C;">2h left</span>
+                  </div>
+                  <div style="height:6px; background:#F1F5F9; border-radius:9999px; overflow:hidden; margin-top:10px;">
+                    <div style="width:60%; height:100%; background:var(--warning); border-radius:9999px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 style="font-size:13px; font-weight:800; color:#0F172A; margin-bottom:10px;">Next tasks</h3>
+              <div class="app-card-gray" style="margin-bottom:10px; display:flex; gap:12px; align-items:center;">
+                <div class="app-checkbox checked"></div>
+                <div style="flex:1;">
+                  <h4 style="font-size:13px; font-weight:700; text-decoration:line-through; color:var(--text-muted);">Pay USTM Tuition (5,000 MZN)</h4>
+                  <span style="font-size:10px; font-weight:700; color:var(--success);">Completed</span>
+                </div>
+              </div>
+              <div class="app-card-gray" style="display:flex; gap:12px; align-items:center;">
+                <div class="app-checkbox"></div>
+                <div style="flex:1; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <h4 style="font-size:13px; font-weight:700; color:#0F172A;">Blockchain Assignment #2</h4>
+                    <span class="subject-badge"><span class="subject-dot" style="background-color:var(--blockchain-color);"></span>Blockchain</span>
+                  </div>
+                  <span class="app-btn-outline" style="padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700; color:var(--primary); background-color:var(--primary-light); border-color:#BFDBFE;">Tomorrow</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="app-bottom-nav">
+            <span class="app-nav-item active"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span class="app-nav-label">Home</span></span>
+            <span class="app-nav-item"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect></svg><span class="app-nav-label">Calendar</span></span>
+            <div class="app-fab-container"><span class="app-fab">+</span></div>
+            <span class="app-nav-item"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line></svg><span class="app-nav-label">Stats</span></span>
+            <span class="app-nav-item"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle></svg><span class="app-nav-label">Settings</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="storyboard-annotation">
+        <strong>Nielsen: System Status</strong>
+        Countdown Badges & Inline task logic. High tap targets.
+      </div>
+    </div>
+
+    <!-- 3. ADD TASK -->
+    <div class="storyboard-item">
+      <span class="storyboard-screen-title">3. Add Task</span>
+      <div class="iphone-15">
+        <div class="iphone-speaker"></div>
+        <div class="iphone-screen">
+          <div class="screen-status-bar"><span>9:41</span><div class="status-icons"><span>LTE</span><span>100%</span></div></div>
+          <div class="screen-content" style="padding: 20px; justify-content:space-between;">
+            <div>
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                <span style="font-size:18px; font-weight:bold; color:var(--text-muted); cursor:pointer;">&times;</span>
+                <h2 style="font-size:18px; font-weight:800;">Create new task</h2>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:16px;">
+                <div>
+                  <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;">Task Name</label>
+                  <input type="text" class="app-input" value="E.g., Study for Cybersecurity test" style="color:var(--text-muted);">
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;">Subject</label>
+                  <div style="display:flex; gap:6px;">
+                    <span class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700; background-color:var(--primary-light); border-color:var(--primary); color:var(--primary);">Artificial Intelligence</span>
+                    <span class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;">Cybersecurity</span>
+                  </div>
+                </div>
+                <div style="display:flex; gap:12px;">
+                  <div style="flex:1;">
+                    <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;">Date</label>
+                    <input type="text" class="app-input" value="Hoje, 14 Out">
+                  </div>
+                  <div style="flex:1;">
+                    <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;">Time</label>
+                    <input type="text" class="app-input" value="23:59">
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;">Est. Pomodoro Sessions</label>
+                  <div class="app-card-gray" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px;">
+                    <span style="font-size:13px; font-weight:700;">4 sessions</span>
+                    <div style="display:flex; gap:8px;">
+                      <span class="app-btn-outline" style="width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold;">-</span>
+                      <span class="app-btn-outline" style="width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold;">+</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div style="background-color:var(--success); color:white; padding:10px; border-radius:8px; font-size:12px; font-weight:700; text-align:center;">✓ Task saved successfully</div>
+              <button class="app-btn app-btn-primary">Save task</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="storyboard-annotation">
+        <strong>Direct Manipulation</strong>
+        Thumb-friendly bottom CTA. Chip selectors for speed.
+      </div>
+    </div>
+
+    <!-- 4. CALENDAR VIEW -->
+    <div class="storyboard-item">
+      <span class="storyboard-screen-title">4. Calendar View</span>
+      <div class="iphone-15">
+        <div class="iphone-speaker"></div>
+        <div class="iphone-screen">
+          <div class="screen-status-bar"><span>9:41</span><div class="status-icons"><span>LTE</span><span>100%</span></div></div>
+          <div class="screen-content" style="padding:16px 20px 0 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h2 style="font-size:20px; font-weight:800;">October 2026</h2>
+              <div style="display:flex; gap:6px;">
+                <span class="app-btn-outline" style="width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center;">&lt;</span>
+                <span class="app-btn-outline" style="width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center;">&gt;</span>
+              </div>
+            </div>
+            <div class="app-card-gray" style="padding:10px; margin-bottom:16px;">
+              <div style="display:grid; grid-template-columns:repeat(7, 1fr); text-align:center; font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:8px;">
+                <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:6px; text-align:center; font-size:12px; font-weight:600;">
+                <span style="color:#CBD5E1;">28</span><span style="color:#CBD5E1;">29</span><span style="color:#CBD5E1;">30</span><span>1</span><span>2</span><span>3</span><span>4</span>
+                <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span>
+                <span>12</span><span>13</span><span style="background-color:var(--primary); color:white; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; margin:auto;">14</span><span>15</span><span>16</span><span>17</span><span>18</span>
+              </div>
+            </div>
+            <div>
+              <h3 style="font-size:13px; font-weight:800; color:#0F172A; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">Agenda: Hoje</h3>
+              <div style="display:flex; flex-direction:column; gap:14px;">
+                <div style="display:flex; gap:12px;">
+                  <div style="width:4px; background-color:var(--primary); border-radius:4px;"></div>
+                  <div style="flex:1; display:flex; justify-content:space-between;">
+                    <div>
+                      <h4 style="font-size:13px; font-weight:700;">Cloud Computing Lecture</h4>
+                      <p style="font-size:11px; color:var(--text-muted); margin-top:2px;">Campus Principal USTM - Sala 4</p>
+                    </div>
+                    <span style="font-size:11px; font-weight:700; color:var(--primary);">10:00</span>
+                  </div>
+                </div>
+                <div style="display:flex; gap:12px;">
+                  <div style="width:4px; background-color:var(--warning); border-radius:4px;"></div>
+                  <div style="flex:1; display:flex; justify-content:space-between;">
+                    <div>
+                      <h4 style="font-size:13px; font-weight:700;">HCI Group Study</h4>
+                      <p style="font-size:11px; color:var(--text-muted); margin-top:2px;">Biblioteca Central</p>
+                    </div>
+                    <span style="font-size:11px; font-weight:700; color:var(--warning);">14:30</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="app-bottom-nav">
+            <span class="app-nav-item"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span class="app-nav-label">Home</span></span>
+            <span class="app-nav-item active"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect></svg><span class="app-nav-label">Calendar</span></span>
+            <div class="app-fab-container"><span class="app-fab">+</span></div>
+            <span class="app-nav-item"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="20" x2="18" y2="10"></line></svg><span class="app-nav-label">Stats</span></span>
+            <span class="app-nav-item"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle></svg><span class="app-nav-label">Settings</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="storyboard-annotation">
+        <strong>Gestalt: Continuity</strong>
+        Timeline with accent bars. Month grid grouped by color.
+      </div>
+    </div>
+
+    <!-- 5. TASK DETAIL -->
+    <div class="storyboard-item">
+      <span class="storyboard-screen-title">5. Task Detail</span>
+      <div class="iphone-15">
+        <div class="iphone-speaker"></div>
+        <div class="iphone-screen">
+          <div class="screen-status-bar"><span>9:41</span><div class="status-icons"><span>LTE</span><span>100%</span></div></div>
+          <div class="screen-content" style="padding:16px 20px 20px 20px; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <span style="font-weight:bold; color:var(--text-muted);">&lt;</span>
+                <span style="font-size:12px; font-weight:700; color:var(--primary);">Edit Task</span>
+              </div>
+              <div class="app-card" style="margin-bottom:20px;">
+                <div class="subject-badge" style="margin-bottom:8px;">
+                  <span class="subject-dot" style="background-color:var(--ai-color);"></span>ARTIFICIAL INTELIGENCE
+                </div>
+                <h3 style="font-size:18px; font-weight:800; color:#0F172A; margin-bottom:12px;">Neural Networks Assignment</h3>
+                <div style="display:flex; gap:6px; margin-bottom:14px;">
+                  <span class="app-btn-outline" style="padding:3px 8px; font-size:10px; font-weight:700; width:auto;">Due Tomorrow</span>
+                  <span class="status-pill-offline" style="font-size:10px; padding:3px 8px; border-color:#FECACA; background-color:#FEF2F2; color:#EF4444;">⚠️ High Priority</span>
+                </div>
+                <div style="height:6px; background:#F1F5F9; border-radius:9999px; overflow:hidden; margin-bottom:4px;">
+                  <div style="width:33%; height:100%; background:var(--primary); border-radius:9999px;"></div>
+                </div>
+                <p style="font-size:10px; color:var(--text-muted); text-align:right; font-weight:600;">1 / 3 Sub-tasks done</p>
+              </div>
+              <div>
+                <h4 style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Sub-tasks</h4>
+                <div class="app-card-gray" style="display:flex; flex-direction:column; gap:12px;">
+                  <div style="display:flex; gap:10px; align-items:center;">
+                    <div class="app-checkbox checked"></div>
+                    <span style="font-size:12px; text-decoration:line-through; color:var(--text-muted);">Review AI concepts</span>
+                  </div>
+                  <div style="display:flex; gap:10px; align-items:center;">
+                    <div class="app-checkbox"></div>
+                    <span style="font-size:12px; font-weight:600;">Implement basic perceptron</span>
+                  </div>
+                  <div style="display:flex; gap:10px; align-items:center;">
+                    <div class="app-checkbox"></div>
+                    <span style="font-size:12px; font-weight:600;">Test with dataset</span>
+                  </div>
+                  <span class="app-btn-outline" style="padding:6px; border-style:dashed; font-size:11px; font-weight:700; text-align:center;">+ Add subtask</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <button class="app-btn app-btn-primary">▶ Begin Focus Session</button>
+              <div style="display:flex; gap:8px;">
+                <button class="app-btn app-btn-outline" style="flex:1;">Save Changes</button>
+                <button class="app-btn app-btn-outline" style="flex:1; border-color:#FCA5A5; background-color:#FEF2F2; color:#EF4444;">Delete Task</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="storyboard-annotation">
+        <strong>Nielsen: Error Prevention</strong>
+        Clear distinction between Undo (Ghost) and Delete (Danger).
+      </div>
+    </div>
+
+    <!-- 6. FOCUS MODE -->
+    <div class="storyboard-item">
+      <span class="storyboard-screen-title">6. Focus Mode</span>
+      <div class="iphone-15">
+        <div class="iphone-speaker"></div>
+        <div class="iphone-screen" style="background:linear-gradient(180deg, #093161 0%, #031D3D 100%);">
+          <div class="screen-status-bar dark-theme"><span>9:41</span><div class="status-icons"><span>LTE</span><span>100%</span></div></div>
+          <!-- Fake Dynamic Island Expanded -->
+          <div style="width:140px; height:28px; background:black; border-radius:14px; position:absolute; top:8px; left:50%; transform:translateX(-50%); display:flex; align-items:center; justify-content:space-between; padding: 0 10px; color:white; font-size:9px; font-weight:bold;">
+            <span style="color:#4CD964;">● 24:15</span>
+            <div style="width:10px; height:10px; background:#1D63B8; border-radius:50%;"></div>
+          </div>
+          <div class="screen-content" style="padding: 24px; justify-content:space-between; align-items:center; text-align:center; color:white;">
+            <div style="margin-top:10px;">
+              <span class="app-btn-outline" style="background-color:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#FFFFFF; padding:4px 12px; border-radius:20px; font-size:11px; display:inline-block; margin-bottom:8px; width:auto;">Focusing on AI</span>
+              <h2 style="font-size:22px; font-weight:800; color:white;">Neural Networks Assignment</h2>
+            </div>
+            <!-- Timer Circle -->
+            <div style="width:200px; height:200px; border-radius:50%; border:4px solid #4CD964; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+              <span style="font-size:42px; font-weight:800; font-family:'Outfit';">24:15</span>
+              <span style="font-size:10px; opacity:0.6; margin-top:2px;">until short break</span>
+            </div>
+            <div style="display:flex; gap:10px; width:100%; max-width:260px;">
+              <button class="app-btn" style="flex:1; background-color:#FFF; color:#0A3161;">▶ Start Focus</button>
+              <button class="app-btn" style="flex:1; background-color:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#FFF;">End Session</button>
+            </div>
+            <div style="background-color:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:16px; width:100%; padding:12px 14px;">
+              <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:6px;">
+                <span style="opacity:0.6;">Today's Focus Time</span>
+                <strong>1h 15m</strong>
+              </div>
+              <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:9999px; overflow:hidden;">
+                <div style="width:45%; height:100%; background:#4CD964;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="storyboard-annotation">
+        <strong>Nielsen: Minimalist Design</strong>
+        Forcing Functions. High contrast dark mode removes dashboard noise.
+      </div>
+    </div>
+
+    <!-- 7. SUBJECT MANAGER -->
+    <div class="storyboard-item">
+      <span class="storyboard-screen-title">7. Subject Manager</span>
+      <div class="iphone-15">
+        <div class="iphone-speaker"></div>
+        <div class="iphone-screen">
+          <div class="screen-status-bar"><span>9:41</span><div class="status-icons"><span>LTE</span><span>100%</span></div></div>
+          <div class="screen-content" style="padding:16px 20px 0 20px; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h2 style="font-size:22px; font-weight:800;">Your Subjects</h2>
+                <span class="app-btn-outline" style="width:auto; padding:4px 10px; font-size:11px; border-radius:6px; color:var(--primary); border-color:var(--primary);">+ New</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <!-- Accordion expanded card -->
+                <div class="app-card" style="border-color:var(--primary); padding:12px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <span class="subject-dot" style="background-color:var(--primary); width:10px; height:10px;"></span>
+                      <h4 style="font-size:13px; font-weight:700;">Artificial Intelligence</h4>
+                    </div>
+                    <span class="app-btn-outline" style="padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700;">8 tasks ▲</span>
+                  </div>
+                  <div style="height:6px; background:#F1F5F9; border-radius:9999px; overflow:hidden;">
+                    <div style="width:72%; height:100%; background:var(--primary);"></div>
+                  </div>
+                  <div style="margin-top:12px; background-color:var(--bg-card); padding:8px; border-radius:8px; display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; justify-content:space-between; font-size:11px;">
+                      <span style="font-weight:600;">Neural Networks Assignment</span>
+                      <span style="color:var(--warning); font-weight:700;">Due Tomorrow</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:11px; border-top:1px solid #FFF; padding-top:6px;">
+                      <span style="font-weight:600;">Read Chapter 4</span>
+                      <span style="color:var(--text-muted);">Oct 16</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Inactive subject cards -->
+                <div class="app-card" style="padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="subject-dot" style="background-color:var(--success); width:10px; height:10px;"></span>
+                    <h4 style="font-size:13px; font-weight:700;">Cybersecurity</h4>
+                  </div>
+                  <span class="app-btn-outline" style="padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700;">5 tasks ▼</span>
+                </div>
+                <div class="app-card" style="padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="subject-dot" style="background-color:var(--warning); width:10px; height:10px;"></span>
+                    <h4 style="font-size:13px; font-weight:700;">HCI</h4>
+                  </div>
+                  <span class="app-btn-outline" style="padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700;">11 tasks ▼</span>
+                </div>
+              </div>
+            </div>
+            <div class="app-card-gray" style="margin-bottom:20px;">
+              <h4 style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Edit Subject Color</h4>
+              <div style="display:flex; gap:8px;">
+                <span class="subject-dot" style="background-color:#1D63B8; width:24px; height:24px; border:2px solid #FFF; box-shadow:0 0 0 2px var(--primary);"></span>
+                <span class="subject-dot" style="background-color:#10B981; width:24px; height:24px;"></span>
+                <span class="subject-dot" style="background-color:#F59E0B; width:24px; height:24px;"></span>
+                <span class="subject-dot" style="background-color:#EC4899; width:24px; height:24px;"></span>
+                <span class="subject-dot" style="background-color:#8B5CF6; width:24px; height:24px;"></span>
+                <span class="subject-dot" style="background-color:#06B6D4; width:24px; height:24px;"></span>
+              </div>
+            </div>
+          </div>
+          <div class="app-bottom-nav">
+            <span class="app-nav-item"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span class="app-nav-label">Home</span></span>
+            <span class="app-nav-item"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect></svg><span class="app-nav-label">Calendar</span></span>
+            <div class="app-fab-container"><span class="app-fab">+</span></div>
+            <span class="app-nav-item active"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="20" x2="18" y2="10"></line></svg><span class="app-nav-label">Stats</span></span>
+            <span class="app-nav-item"><svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle></svg><span class="app-nav-label">Settings</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="storyboard-annotation">
+        <strong>Gestalt: Similarity</strong>
+        Color coding bounds subject spaces across the entire workflow.
+      </div>
+    </div>
+
+    <!-- 8. PROGRESS TRACKER -->
+    <div class="storyboard-item">
+      <span class="storyboard-screen-title">8. Progress Tracker</span>
+      <div class="iphone-15">
+        <div class="iphone-speaker"></div>
+        <div class="iphone-screen">
+          <div class="screen-status-bar"><span>9:41</span><div class="status-icons"><span>LTE</span><span>100%</span></div></div>
+          <div class="screen-content" style="padding:16px 20px 0 20px; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h2 style="font-size:22px; font-weight:800;">Analytics</h2>
+                <div class="app-card-gray" style="padding:3px; display:flex; border-radius:10px;">
+                  <span class="app-btn-outline" style="padding:4px 10px; background-color:#FFF; border:none; border-radius:8px; font-size:11px; font-weight:700; box-shadow:0 1px 3px rgba(0,0,0,0.05);">Week</span>
+                  <span style="padding:4px 10px; font-size:11px; font-weight:700; color:var(--text-muted);">Month</span>
+                </div>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+                <div class="app-card-gray">
+                  <span style="font-size:24px; font-weight:800; display:block;">14</span>
+                  <span style="font-size:10px; color:var(--text-muted); font-weight:600; margin-top:2px; display:block;">Tasks completed</span>
+                </div>
+                <div class="app-card-gray">
+                  <span style="font-size:24px; font-weight:800; display:block;">87%</span>
+                  <span style="font-size:10px; color:var(--text-muted); font-weight:600; margin-top:2px; display:block;">On-time rate</span>
+                </div>
+                <div class="app-card-gray">
+                  <span style="font-size:24px; font-weight:800; display:block;">6.5h</span>
+                  <span style="font-size:10px; color:var(--text-muted); font-weight:600; margin-top:2px; display:block;">Focus time</span>
+                </div>
+                <div class="app-card-gray">
+                  <span style="font-size:24px; font-weight:800; display:block;">3</span>
+                  <span style="font-size:10px; color:var(--text-muted); font-weight:600; margin-top:2px; display:block;">Pending tasks</span>
+                </div>
+              </div>
+              <div>
+                <h4 style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Activity (Last 7 Days)</h4>
+                <div class="app-card" style="height:110px; display:flex; align-items:flex-end; justify-content:space-between; padding: 10px 14px 20px 14px; position:relative;">
+                  <div style="width:16px; height:40%; background:#CBD5E1; border-radius:4px;"></div>
+                  <div style="width:16px; height:60%; background:#CBD5E1; border-radius:4px;"></div>
+                  <div style="width:16px; height:90%; background:var(--primary); border-radius:4px;"></div>
+                  <div style="width:16px; height:30%; background:#CBD5E1; border-radius:4px;"></div>
+                  <div style="width:16px; height:70%; background:#CBD5E1; border-radius:4px;"></div>
+                  <div style="width:16px; height:50%; background:#CBD5E1; border-radius:4px;"></div>
+                  <div style="width:16px; height:20%; background:#CBD5E1; border-radius:4px;"></div>
+                  <div style="position:absolute; bottom:4px; left:14px; right:14px; display:flex; justify-content:space-between; font-size:9px; color:var(--text-muted); font-weight:700;">
+                    <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="padding-bottom:16px;">
+              <button class="app-btn app-btn-outline" style="font-weight:700;">Download Report .PDF</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="storyboard-annotation">
+        <strong>Visibility of System Status</strong>
+        Summary cards give immediate feedback on academic standing.
+      </div>
+    </div>
+
+    <!-- 9. SETTINGS -->
+    <div class="storyboard-item">
+      <span class="storyboard-screen-title">9. Settings</span>
+      <div class="iphone-15">
+        <div class="iphone-speaker"></div>
+        <div class="iphone-screen">
+          <div class="screen-status-bar"><span>9:41</span><div class="status-icons"><span>LTE</span><span>100%</span></div></div>
+          <div class="screen-content" style="padding:16px 20px 0 20px;">
+            <h2 style="font-size:22px; font-weight:800; color:#0F172A; margin-bottom:16px;">Settings</h2>
+            <div class="app-card-gray" style="margin-bottom:18px; border-left:3px solid var(--primary);">
+              <h4 style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Reminder Preview</h4>
+              <div style="background:#FFF; padding:10px; border-radius:10px; border:1px solid var(--border-color); display:flex; gap:10px; box-shadow:var(--shadow-sm);">
+                <div style="width:24px; height:24px; background:var(--primary); border-radius:6px; display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" width="14" height="14" fill="white"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
+                <div style="flex:1;">
+                  <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700;"><span>KuKula</span><span style="color:var(--text-muted); font-weight:normal;">now</span></div>
+                  <h5 style="font-size:11px; font-weight:700; margin-top:2px;">Time to study HCI</h5>
+                  <p style="font-size:10px; color:var(--text-muted); margin-top:1px;">Your 25-minute Pomodoro session is scheduled to start.</p>
+                </div>
+              </div>
+            </div>
+            <div style="margin-bottom:18px;">
+              <h4 style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Pomodoro Preferences</h4>
+              <div class="app-card" style="display:flex; flex-direction:column; gap:10px; padding:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:600;">
+                  <span>Focus length</span>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="app-btn-outline" style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-weight:bold;">-</span>
+                    <span>25m</span>
+                    <span class="app-btn-outline" style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-weight:bold;">+</span>
+                  </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:600; border-top:1px solid var(--border-color); padding-top:10px;">
+                  <span>Break length</span>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="app-btn-outline" style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-weight:bold;">-</span>
+                    <span>5m</span>
+                    <span class="app-btn-outline" style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-weight:bold;">+</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-bottom:18px;">
+              <h4 style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Language</h4>
+              <div style="display:flex; gap:6px;">
+                <span class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700; background-color:var(--primary-light); border-color:var(--primary); color:var(--primary);">English</span>
+                <span class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;">Português</span>
+                <span class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;">Changana</span>
+              </div>
+            </div>
+            <div>
+              <h4 style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Feedback Style</h4>
+              <div style="display:flex; gap:6px;">
+                <span class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;">Vibration</span>
+                <span class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700; background-color:var(--primary-light); border-color:var(--primary); color:var(--primary);">Sound (Chime)</span>
+                <span class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;">Silent</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="storyboard-annotation">
+        <strong>Recognition vs Recall</strong>
+        Previewing the exact notification builds trust & removes guesswork.
+      </div>
+    </div>
+
+  </main>
+
+</body>
+</html>

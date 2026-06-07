@@ -1,0 +1,2500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>KuKula Study Planner</title>
+  
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Design Tokens */
+    :root {
+      --primary: #1D63B8;         /* Solid academic blue */
+      --primary-hover: #154D92;
+      --primary-light: #EBF3FC;   /* Soft blue for badge backgrounds */
+      --success: #22C55E;
+      --success-light: #E8F5E9;
+      --warning: #F59E0B;
+      --warning-light: #FEF3C7;
+      --danger: #EF4444;
+      --danger-light: #FEF2F2;
+      --danger-text: #E05A47;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --bg-main: #FFFFFF;
+      --bg-card: #F8FAFC;
+      --border-color: #E2E8F0;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0F172A; /* Slate margins for desktop */
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Responsive Frame Shell */
+    .app-container {
+      width: 100%;
+      max-width: 412px;
+      height: 100vh;
+      background-color: var(--bg-main);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+
+    @media (max-height: 850px) and (min-width: 480px) {
+      .app-container {
+        height: 820px;
+        border-radius: 40px;
+        border: 8px solid #1E293B;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        background-color: var(--bg-main);
+      }
+      .app-container {
+        max-width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+      }
+    }
+
+    /* iOS Status Bar */
+    .app-status-bar {
+      height: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #000000;
+      background-color: transparent;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+    .app-status-bar.dark-theme {
+      color: #FFFFFF;
+    }
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-icons svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* Pages Container */
+    .page {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding-top: 16px; /* Spacing at top since status bar is removed */
+      background-color: var(--bg-main);
+    }
+    .page.active {
+      display: flex;
+    }
+
+    .page-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px 24px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .page-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Tab bar Navigations */
+    .app-bottom-nav {
+      height: 76px;
+      background: #FFFFFF;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: 12px;
+      flex-shrink: 0;
+      z-index: 90;
+    }
+    .app-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 50px;
+      background: none;
+      border: none;
+      font-family: inherit;
+    }
+    .app-nav-item.active {
+      color: var(--primary);
+    }
+    .app-nav-icon {
+      width: 20px;
+      height: 20px;
+    }
+    .app-nav-label {
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .app-fab-container {
+      position: relative;
+      width: 50px;
+      display: flex;
+      justify-content: center;
+    }
+    .app-fab {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      bottom: -6px;
+      color: white;
+      font-size: 24px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(29, 99, 184, 0.3);
+      transition: var(--transition);
+    }
+    .app-fab:hover {
+      background-color: var(--primary-hover);
+      transform: scale(1.05);
+    }
+
+    /* iOS Bottom Home Bar */
+    .home-indicator {
+      height: 5px;
+      width: 140px;
+      background-color: #000000;
+      border-radius: 9999px;
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .home-indicator.dark-theme {
+      background-color: #FFFFFF;
+    }
+
+    /* Shared UI elements */
+    .app-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      width: 100%;
+      border: none;
+      cursor: pointer;
+      gap: 8px;
+      transition: var(--transition);
+    }
+    .app-btn-primary {
+      background-color: var(--primary);
+      color: #FFFFFF;
+    }
+    .app-btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+    .app-btn-outline {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      transition: var(--transition);
+    }
+    .app-btn-outline:hover {
+      background-color: #F8FAFC;
+    }
+    .app-btn-outline.active-chip {
+      background-color: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .app-btn-outline.active-tab-btn {
+      background-color: #FFFFFF;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .app-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .app-card-gray {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .app-input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      font-size: 14px;
+      outline: none;
+      transition: var(--transition);
+    }
+    .app-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(29, 99, 184, 0.1);
+    }
+
+    .app-checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      border: 1px solid var(--border-color);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFFFFF;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .app-checkbox.checked {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    .app-checkbox.checked::after {
+      content: '✓';
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .subject-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .subject-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .status-pill-offline {
+      background-color: var(--danger-light);
+      color: var(--danger-text);
+      border: 1px solid #FCA5A5;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      width: fit-content;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .app-stepper {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+    .app-step-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #E2E8F0;
+    }
+    .app-step-dot.active {
+      background: var(--primary);
+      width: 16px;
+      border-radius: 3px;
+    }
+
+    /* Expanded Dynamic Island Widget */
+    .iphone-dynamic-island {
+      width: 120px;
+      height: 30px;
+      background-color: #000000;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      color: #FFFFFF;
+      font-size: 10px;
+      font-weight: 700;
+      margin: 8px auto 0 auto;
+      z-index: 100;
+      position: relative;
+      cursor: pointer;
+      transition: width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-radius 0.3s;
+      overflow: hidden;
+    }
+    .iphone-dynamic-island.island-expanded {
+      width: 190px;
+      height: 38px;
+      border-radius: 19px;
+    }
+
+    .subject-manager-progress {
+      height: 6px;
+      background: #F1F5F9;
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .subject-manager-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 0.3s ease;
+    }
+
+    /* Modal dialog layout */
+    .app-modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(2px);
+    }
+    .app-modal-card {
+      background-color: #FFFFFF;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 320px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      color: var(--text-main);
+    }
+
+    .dev-storyboard-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: #1E293B;
+      border: 1px solid #334155;
+      color: #F8FAFC;
+      padding: 10px 16px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 9999;
+    }
+    .dev-storyboard-toggle:hover {
+      background-color: #334155;
+    }
+    @media (max-width: 480px) {
+      .dev-storyboard-toggle {
+        display: none;
+      }
+    }
+
+    /* Chart Tooltip */
+    #chart-hint strong {
+      transition: all 0.2s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Developer Link on Desktop canvas -->
+  <a href="storyboard.html" class="dev-storyboard-toggle" target="_blank">
+    🖼️ Open Storyboard Canvas
+  </a>
+
+  <!-- App Wrapper -->
+  <div class="app-container">
+    
+    <!-- Status bar removed -->
+
+    <!-- 0. LOGIN PAGE -->
+    <div class="page active" id="page-0">
+      <div class="page-content" style="justify-content: space-between; text-align: center;">
+        <div></div>
+        
+        <div>
+          <div style="width:96px; height:96px; background:#FFFFFF; border-radius:22px; display:flex; align-items:center; justify-content:center; margin:0 auto 24px; border:1px solid #E2E8F0; box-shadow: var(--shadow-md);">
+            <div style="width:64px; height:64px; border-radius:14px; background:var(--primary); display:flex; align-items:center; justify-content:center; color:white; font-size:32px; font-weight:800;">K</div>
+          </div>
+          <h1 style="font-size:32px; font-weight:800; color:#0F172A; margin-bottom:8px;">KuKula</h1>
+          <p style="font-size:14px; color:var(--text-muted);" data-translate="academicCompanion">Your smart academic companion</p>
+        </div>
+        
+        <div style="width:100%; display:flex; flex-direction:column; gap:12px;">
+          <button class="app-btn app-btn-primary" id="btn-login-mail" onclick="simulateLoadingLogin(this)" data-translate="loginEmail">Log in with University Email</button>
+          <div style="font-size:12px; color:var(--text-muted); margin: 4px 0;">or</div>
+          <button class="app-btn app-btn-outline" onclick="simulateLoadingLogin(this)">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width:16px;" alt=""> <span data-translate="continueGoogle">Continue with Google</span>
+          </button>
+          <button class="app-btn app-btn-outline" onclick="simulateLoadingLogin(this)">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" style="width:14px; margin-bottom:2px;" alt=""> <span data-translate="continueApple">Continue with Apple</span>
+          </button>
+          <p style="font-size:10px; color:var(--text-muted); line-height:1.4; margin-top:10px; padding:0 10px;" data-translate="termsText">
+            By continuing, you agree to our Terms of Service and Privacy Policy
+          </p>
+        </div>
+        
+        <div>
+          <a href="#" onclick="guestLogin()" style="color:var(--primary); font-weight:700; font-size:14px; text-decoration:none; display:block; margin-bottom: 20px;" data-translate="previewGuest">Preview as Guest Mode</a>
+          <div style="border-top:1px solid #F1F5F9; padding-top:16px;">
+            <p style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;" data-translate="selectLanguage">Select Language</p>
+            <div style="display:flex; justify-content:center; gap:6px;">
+              <button class="app-btn-outline active-chip" onclick="changeLang('en')" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;" id="lang-chip-en-0">English</button>
+              <button class="app-btn-outline" onclick="changeLang('pt')" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;" id="lang-chip-pt-0">Português</button>
+              <button class="app-btn-outline" onclick="changeLang('ch')" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;" id="lang-chip-ch-0">Changana</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. ONBOARDING PAGE -->
+    <div class="page" id="page-1">
+      <div class="page-content" style="justify-content: space-between;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button onclick="gotoPage(0)" style="background:none; border:none; cursor:pointer; color:var(--text-muted);"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+          <div style="width:24px; height:24px; background:var(--primary-light); border-radius:6px; display:flex; align-items:center; justify-content:center; border:1px solid #EBF3FC;">
+            <span style="color:var(--primary); font-size:10px; font-weight:800;">K</span>
+          </div>
+          <div style="width:20px;"></div>
+        </div>
+        
+        <div style="text-align:center; margin-top:16px;">
+          <h2 style="font-size:24px; font-weight:800; color:#0F172A; margin-bottom:8px;" data-translate="buildPlanTitle">Build your plan.</h2>
+          <p style="font-size:13px; color:var(--text-muted); line-height:1.5;" data-translate="buildPlanDesc">Tell us what you're studying at USTM this semester to generate a smart mental model.</p>
+        </div>
+        
+        <div style="margin-top:20px;">
+          <label style="font-size:12px; font-weight:800; color:#0F172A; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:12px;" data-translate="selectSubjects">Select core subjects</label>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;" id="onboarding-subjects-container">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+        
+        <div class="app-card-gray" style="margin-top:20px; border:1px dashed var(--primary); background-color:#F0F7FF; position:relative; overflow:hidden;" id="siges-card">
+          <!-- Connect Spinner Overlay -->
+          <div id="siges-spinner" style="position:absolute; top:0; left:0; right:0; bottom:0; background-color:rgba(240,247,255,0.95); display:none; align-items:center; justify-content:center; gap:10px; font-size:11px; font-weight:700; color:var(--primary);">
+            <div style="width:14px; height:14px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; animation: pulse 0.8s linear infinite;"></div>
+            <span id="siges-spinner-text">Connecting to USTM SIGES...</span>
+          </div>
+          
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h4 style="font-size:13px; font-weight:700; color:#0F172A; margin-bottom:2px;" id="siges-title" data-translate="sigesTitle">Link SIGES Portal</h4>
+              <p style="font-size:11px; color:var(--text-muted);" id="siges-subtitle" data-translate="sigesSubtitle">Import your class timetable</p>
+            </div>
+            <button onclick="connectSiges()" class="app-btn-outline" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700; border-color:var(--primary); color:var(--primary); width:auto;" id="siges-btn" data-translate="connectBtn">Connect</button>
+          </div>
+        </div>
+        
+        <div style="margin-top:auto; padding-top:20px;">
+          <button class="app-btn app-btn-primary" onclick="completeOnboarding()" data-translate="continueDashboard">Continue to Dashboard</button>
+          <div class="app-stepper">
+            <div class="app-step-dot"></div>
+            <div class="app-step-dot active"></div>
+            <div class="app-step-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. DASHBOARD PAGE -->
+    <div class="page" id="page-2">
+      <div class="page-content" style="padding: 16px 20px 0 20px;">
+        <!-- Top Row (Offline + Avatar) -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div class="status-pill-offline" id="dashboard-offline-badge" style="cursor:pointer;" onclick="toggleOfflineMode()">
+            <span class="status-dot" style="background-color:var(--danger); animation:none; width:6px; height:6px; border-radius:50%;"></span>
+            <span id="dashboard-offline-text">Offline Mode</span>
+          </div>
+          <div onclick="gotoPage(8)" style="width:40px; height:40px; border-radius:50%; background:#E2E8F0; overflow:hidden; border:2px solid #FFFFFF; box-shadow:var(--shadow-md); cursor:pointer;">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=João" style="width:100%;" alt="">
+          </div>
+        </div>
+        
+        <!-- Greetings -->
+        <div style="margin-bottom:18px;">
+          <h2 style="font-size:24px; font-weight:800; color:#0F172A;" id="dashboard-greeting">Bom dia, João!</h2>
+          <p style="font-size:13px; color:var(--text-muted); margin-top:2px;" id="dashboard-tasks-count">You have 3 tasks remaining</p>
+        </div>
+        
+        <!-- Tabs -->
+        <div style="display:flex; background-color:#F1F5F9; padding:4px; border-radius:10px; margin-bottom:16px;">
+          <button class="app-btn-outline active-tab-btn" onclick="filterDashboard('today')" style="flex:1; border:none; padding:8px; font-size:12px; font-weight:700; border-radius:8px; cursor:pointer;" id="tab-today" data-translate="today">Today</button>
+          <button class="app-btn-outline" onclick="filterDashboard('upcoming')" style="flex:1; border:none; padding:8px; font-size:12px; font-weight:700; border-radius:8px; cursor:pointer;" id="tab-upcoming" data-translate="upcoming">Upcoming</button>
+          <button class="app-btn-outline" onclick="filterDashboard('done')" style="flex:1; border:none; padding:8px; font-size:12px; font-weight:700; border-radius:8px; cursor:pointer;" id="tab-done" data-translate="done">Done</button>
+        </div>
+        
+        <!-- Tasks Lists Container -->
+        <div style="display:flex; flex-direction:column; gap:12px; flex:1;" id="dashboard-tasks-container">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      
+      <!-- Bottom Tab Nav -->
+      <div class="app-bottom-nav">
+        <button class="app-nav-item active" onclick="gotoPage(2)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span class="app-nav-label" data-translate="homeTab">Home</span>
+        </button>
+        <button class="app-nav-item" onclick="gotoPage(4)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span class="app-nav-label" data-translate="calendarTab">Calendar</span>
+        </button>
+        <div class="app-fab-container">
+          <button class="app-fab" onclick="gotoPage(3)">+</button>
+        </div>
+        <button class="app-nav-item" onclick="gotoPage(8)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span class="app-nav-label" data-translate="statsTab">Stats</span>
+        </button>
+        <button class="app-nav-item" onclick="gotoPage(9)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span class="app-nav-label" data-translate="settingsTab">Settings</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. ADD TASK PAGE -->
+    <div class="page" id="page-3">
+      <div class="page-content" style="justify-content: space-between;">
+        <div>
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px;">
+            <button onclick="gotoPage(2)" style="background:#F1F5F9; border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-main);"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            <h2 style="font-size:20px; font-weight:800; color:#0F172A;" id="add-task-header" data-translate="createTask">Create new task</h2>
+          </div>
+          
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div>
+              <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;" data-translate="taskNameLabel">Task Name</label>
+              <input type="text" id="input-task-name" class="app-input" placeholder="E.g., Study for Cybersecurity test">
+            </div>
+            
+            <div>
+              <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;" data-translate="subjectLabel">Subject</label>
+              <div style="display:flex; flex-wrap:wrap; gap:8px;" id="add-task-subjects-container">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+            
+            <div style="display:flex; gap:12px;">
+              <div style="flex:1;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;" data-translate="dateLabel">Date</label>
+                <input type="text" id="input-task-date" class="app-input" value="Hoje, 14 Out">
+              </div>
+              <div style="flex:1;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;" data-translate="timeLabel">Time</label>
+                <input type="text" id="input-task-time" class="app-input" value="23:59">
+              </div>
+            </div>
+            
+            <div>
+              <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;" data-translate="pomsLabel">Est. Pomodoro Sessions</label>
+              <div class="app-card-gray" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px;">
+                <span style="font-size:14px; font-weight:700; color:#0F172A;" id="pomodoro-sessions-counter">4 sessions</span>
+                <div style="display:flex; gap:8px;">
+                  <button onclick="adjustPomCounter(-1)" class="app-btn-outline" style="width:32px; height:32px; padding:0; border-radius:8px; font-size:16px; font-weight:700; display:flex; align-items:center; justify-content:center;">-</button>
+                  <button onclick="adjustPomCounter(1)" class="app-btn-outline" style="width:32px; height:32px; padding:0; border-radius:8px; font-size:16px; font-weight:700; display:flex; align-items:center; justify-content:center;">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="padding-bottom:20px; display:flex; flex-direction:column; gap:12px;">
+          <div id="save-task-toast" style="background-color:var(--success); color:#FFFFFF; padding:12px; border-radius:10px; font-size:12px; font-weight:700; text-align:center; box-shadow:var(--shadow-md); display:none; opacity:0; transition:opacity 0.3s ease;">
+            ✓ Task saved successfully
+          </div>
+          <button class="app-btn app-btn-primary" onclick="saveTask()" style="padding:16px;" data-translate="saveTaskBtn">Save task</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. CALENDAR VIEW PAGE -->
+    <div class="page" id="page-4">
+      <div class="page-content" style="padding: 16px 20px 0 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h2 style="font-size:22px; font-weight:800; color:#0F172A;" id="calendar-month-title">October 2026</h2>
+          <div style="display:flex; gap:6px;">
+            <button onclick="shiftCalendarMonth(-1)" class="app-btn-outline" style="width:32px; height:32px; padding:0; border-radius:8px; display:flex; align-items:center; justify-content:center;">&lt;</button>
+            <button onclick="shiftCalendarMonth(1)" class="app-btn-outline" style="width:32px; height:32px; padding:0; border-radius:8px; display:flex; align-items:center; justify-content:center;">&gt;</button>
+          </div>
+        </div>
+        
+        <div class="app-card-gray" style="padding:10px; margin-bottom:16px;">
+          <div style="display:grid; grid-template-columns: repeat(7, 1fr); text-align:center; font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">
+            <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; font-size:13px;" id="calendar-grid">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+        
+        <div style="flex:1;">
+          <h3 style="font-size:14px; font-weight:800; color:#0F172A; margin-bottom:14px; text-transform:uppercase; letter-spacing:0.5px;" id="agenda-date-title" data-translate="agendaTitle">Agenda: Hoje</h3>
+          <div style="display:flex; flex-direction:column; gap:16px;" id="agenda-events-container">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bottom Tab Nav -->
+      <div class="app-bottom-nav">
+        <button class="app-nav-item" onclick="gotoPage(2)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span class="app-nav-label" data-translate="homeTab">Home</span>
+        </button>
+        <button class="app-nav-item active" onclick="gotoPage(4)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span class="app-nav-label" data-translate="calendarTab">Calendar</span>
+        </button>
+        <div class="app-fab-container">
+          <button class="app-fab" onclick="gotoPage(3)">+</button>
+        </div>
+        <button class="app-nav-item" onclick="gotoPage(8)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span class="app-nav-label" data-translate="statsTab">Stats</span>
+        </button>
+        <button class="app-nav-item" onclick="gotoPage(9)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span class="app-nav-label" data-translate="settingsTab">Settings</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 5. TASK DETAIL PAGE -->
+    <div class="page" id="page-5">
+      <div class="page-content" style="justify-content: space-between;">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <button onclick="gotoPage(2)" style="background:#F1F5F9; border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-main);"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+            <button onclick="editCurrentTask()" style="background:none; border:none; font-size:13px; font-weight:700; color:var(--primary); cursor:pointer;" data-translate="editTaskBtn">Edit Task</button>
+          </div>
+          
+          <div class="app-card" style="margin-bottom:20px;">
+            <div class="subject-badge" style="margin-bottom:10px; cursor:pointer;" onclick="gotoPage(7)">
+              <span class="subject-dot" style="background-color:var(--ai-color);" id="detail-subject-dot"></span>
+              <span id="detail-subject-name">ARTIFICIAL INTELLIGENCE</span>
+            </div>
+            <h2 style="font-size:22px; font-weight:800; color:#0F172A; margin-bottom:12px; line-height:1.3;" id="detail-task-title">Neural Networks Assignment</h2>
+            
+            <div style="display:flex; gap:8px; margin-bottom:16px;">
+              <span class="app-btn-outline" style="padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; width:auto; border-color:#E2E8F0;" id="detail-badge-due" data-translate="dueTomorrow">Due Tomorrow</span>
+              <span class="status-pill-offline" style="border-color:#FCA5A5; font-size:11px; padding:4px 10px; display:flex;" id="detail-badge-priority" data-translate="highPriority">
+                ⚠️ High Priority
+              </span>
+            </div>
+            
+            <div style="height:8px; background:#F1F5F9; border-radius:9999px; overflow:hidden; margin-bottom:6px;">
+              <div style="width:33%; height:100%; background:var(--primary); border-radius:9999px;" id="detail-progress-fill"></div>
+            </div>
+            <p style="font-size:11px; color:var(--text-muted); text-align:right; font-weight:600;" id="detail-progress-label">1 / 3 Sub-tasks done</p>
+          </div>
+          
+          <div>
+            <h3 style="font-size:13px; font-weight:800; color:#0F172A; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;" data-translate="subtasksHeader">Sub-tasks</h3>
+            <div class="app-card-gray" style="display:flex; flex-direction:column; gap:12px;" id="detail-subtasks-container">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+        
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
+          <button class="app-btn app-btn-primary" onclick="launchFocusSession()" style="padding:15px; font-size:14px; gap:8px;" data-translate="beginFocus">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Begin Focus Session
+          </button>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <button onclick="gotoPage(2)" class="app-btn app-btn-outline" style="padding:12px;" data-translate="saveChanges">Save Changes</button>
+            <button onclick="deleteCurrentTaskPrompt()" class="app-btn app-btn-outline" style="padding:12px; border-color:#FCA5A5; color:#EF4444; background-color:#FEF2F2;" data-translate="deleteTask">Delete Task</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. FOCUS MODE PAGE -->
+    <div class="page" id="page-6" style="background:linear-gradient(180deg, #093161 0%, #031D3D 100%);">
+      <!-- Dynamic Island Widget -->
+      <div id="dynamic-island" class="iphone-dynamic-island" onclick="toggleIslandWidget()">
+        <span style="color:#4CD964;" id="island-timer-text">● 24:15</span>
+        <div style="width:12px;height:12px;background:#1D63B8;border-radius:50%;"></div>
+      </div>
+      
+      <div class="page-content" style="padding: 20px 24px 24px 24px; justify-content: space-between; align-items: center; text-align: center; color: white;">
+        <div style="margin-top:10px;">
+          <span class="app-btn-outline" style="background-color:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#FFFFFF; padding:6px 14px; border-radius:9999px; font-size:11px; font-weight:700; width:auto; display:inline-block; margin-bottom:12px;" data-translate="focusingAI">Focusing on AI</span>
+          <h2 style="font-size:22px; font-weight:800; line-height:1.3; color:#FFFFFF;" id="focus-task-title">Neural Networks Assignment</h2>
+        </div>
+        
+        <!-- Timer Circle -->
+        <div style="position:relative; width:220px; height:220px; display:flex; align-items:center; justify-content:center;">
+          <svg width="220" height="220" viewBox="0 0 220 220" style="transform: rotate(-90deg); position:absolute;">
+            <circle cx="110" cy="110" r="95" stroke="rgba(255,255,255,0.1)" stroke-width="6" fill="transparent" />
+            <circle id="timer-stroke" cx="110" cy="110" r="95" stroke="#4CD964" stroke-width="6" fill="transparent" stroke-dasharray="597" stroke-dashoffset="0" stroke-linecap="round" style="transition: stroke-dashoffset 1s linear;" />
+          </svg>
+          <div style="display:flex; flex-direction:column; align-items:center; z-index:10;">
+            <span id="focus-timer-text" style="font-size:46px; font-weight:800; font-family:'Outfit',sans-serif; letter-spacing:-1px;">24:15</span>
+            <span style="font-size:11px; opacity:0.7; margin-top:2px;" data-translate="breakHint">until short break</span>
+          </div>
+        </div>
+        
+        <div style="width:100%; display:flex; gap:12px; max-width:280px;">
+          <button class="app-btn" id="btn-focus-toggle" onclick="togglePomodoroTimer()" style="flex:1; background-color:#FFFFFF; color:#0A3161; padding:12px;" data-translate="startFocus">Start Focus</button>
+          <button class="app-btn" onclick="endFocusSession()" style="flex:1; background-color:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#FFFFFF; padding:12px;" data-translate="endSession">End Session</button>
+        </div>
+        
+        <div style="background-color:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:16px; width:100%; padding:14px 18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:11px; opacity:0.6; font-weight:600;" data-translate="todayFocusTime">Today's Focus Time</span>
+            <span style="font-size:13px; font-weight:700;" id="focus-total-today">1h 15m</span>
+          </div>
+          <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:9999px; overflow:hidden;">
+            <div style="width: 45%; height:100%; background:#4CD964; border-radius:9999px;" id="focus-total-progress"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. SUBJECT MANAGER PAGE -->
+    <div class="page" id="page-7">
+      <div class="page-content" style="justify-content: space-between;">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <button onclick="gotoPage(2)" style="background:#F1F5F9; border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-main);"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+              <h2 style="font-size:22px; font-weight:800; color:#0F172A;" data-translate="yourSubjects">Your Subjects</h2>
+            </div>
+            <button onclick="addNewSubjectPrompt()" class="app-btn-outline" style="width:auto; padding:6px 14px; font-size:12px; border-radius:8px; border-color:var(--primary); color:var(--primary);">+ New</button>
+          </div>
+          
+          <div style="display:flex; flex-direction:column; gap:12px;" id="subject-manager-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+        
+        <div class="app-card-gray" style="margin-top:auto; margin-bottom:20px;">
+          <h3 style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;" data-translate="editColorLabel">Edit Subject Color</h3>
+          <div style="display:flex; gap:10px;" id="edit-color-picker">
+            <div class="subject-dot" onclick="pickSubjectColor('#1D63B8')" style="background-color:#1D63B8; width:28px; height:28px; cursor:pointer; border:2px solid #FFF; box-shadow:0 0 0 2px var(--primary);"></div>
+            <div class="subject-dot" onclick="pickSubjectColor('#10B981')" style="background-color:#10B981; width:28px; height:28px; cursor:pointer;"></div>
+            <div class="subject-dot" onclick="pickSubjectColor('#F59E0B')" style="background-color:#F59E0B; width:28px; height:28px; cursor:pointer;"></div>
+            <div class="subject-dot" onclick="pickSubjectColor('#EC4899')" style="background-color:#EC4899; width:28px; height:28px; cursor:pointer;"></div>
+            <div class="subject-dot" onclick="pickSubjectColor('#8B5CF6')" style="background-color:#8B5CF6; width:28px; height:28px; cursor:pointer;"></div>
+            <div class="subject-dot" onclick="pickSubjectColor('#06B6D4')" style="background-color:#06B6D4; width:28px; height:28px; cursor:pointer;"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bottom Tab Nav -->
+      <div class="app-bottom-nav">
+        <button class="app-nav-item" onclick="gotoPage(2)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span class="app-nav-label" data-translate="homeTab">Home</span>
+        </button>
+        <button class="app-nav-item" onclick="gotoPage(4)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span class="app-nav-label" data-translate="calendarTab">Calendar</span>
+        </button>
+        <div class="app-fab-container">
+          <button class="app-fab" onclick="gotoPage(3)">+</button>
+        </div>
+        <button class="app-nav-item active" onclick="gotoPage(8)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span class="app-nav-label" data-translate="statsTab">Stats</span>
+        </button>
+        <button class="app-nav-item" onclick="gotoPage(9)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span class="app-nav-label" data-translate="settingsTab">Settings</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 8. PROGRESS TRACKER PAGE -->
+    <div class="page" id="page-8">
+      <div class="page-content" style="padding: 16px 20px 0 20px; justify-content: space-between;">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h2 style="font-size:22px; font-weight:800; color:#0F172A;" data-translate="analytics">Analytics</h2>
+            <div class="app-card-gray" style="padding:3px; display:flex; border-radius:10px;">
+              <button onclick="toggleStatsRange('week')" id="stats-range-week" style="padding:6px 12px; background:#FFFFFF; border:none; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer; box-shadow:var(--shadow-sm); color:var(--text-main);">Week</button>
+              <button onclick="toggleStatsRange('month')" id="stats-range-month" style="padding:6px 12px; background:none; border:none; font-size:11px; font-weight:700; cursor:pointer; color:var(--text-muted);">Month</button>
+            </div>
+          </div>
+          
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:16px;">
+            <div class="app-card-gray" style="padding:14px; text-align:left;">
+              <span style="font-size:24px; font-weight:800; color:var(--text-main); display:block;" id="stat-completed-val">14</span>
+              <span style="font-size:11px; color:var(--text-muted); font-weight:600; margin-top:2px; display:block;" data-translate="tasksCompleted">Tasks completed</span>
+            </div>
+            <div class="app-card-gray" style="padding:14px; text-align:left;">
+              <span style="font-size:24px; font-weight:800; color:var(--text-main); display:block;">87%</span>
+              <span style="font-size:11px; color:var(--text-muted); font-weight:600; margin-top:2px; display:block;" data-translate="ontimeRate">On-time rate</span>
+            </div>
+            <div class="app-card-gray" style="padding:14px; text-align:left;">
+              <span style="font-size:24px; font-weight:800; color:var(--text-main); display:block;" id="stat-focus-val">6.5h</span>
+              <span style="font-size:11px; color:var(--text-muted); font-weight:600; margin-top:2px; display:block;" data-translate="focusTime">Focus time</span>
+            </div>
+            <div class="app-card-gray" style="padding:14px; text-align:left;">
+              <span style="font-size:24px; font-weight:800; color:var(--text-main); display:block;" id="stat-pending-val">3</span>
+              <span style="font-size:11px; color:var(--text-muted); font-weight:600; margin-top:2px; display:block;" data-translate="pendingLabel">Pending tasks</span>
+            </div>
+          </div>
+          
+          <div>
+            <h3 style="font-size:12px; font-weight:800; color:#0F172A; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;" data-translate="activityLabel">Activity (Last 7 Days)</h3>
+            <div class="app-card" style="height:120px; display:flex; align-items:flex-end; justify-content:space-between; padding: 10px 14px 24px 14px; position:relative;">
+              <div style="width:20px; height:40%; background:#CBD5E1; border-radius:4px; cursor:pointer;" onclick="highlightBar(this, 1.2)" title="Sunday: 1.2h"></div>
+              <div style="width:20px; height:60%; background:#CBD5E1; border-radius:4px; cursor:pointer;" onclick="highlightBar(this, 1.8)" title="Monday: 1.8h"></div>
+              <div style="width:20px; height:90%; background:var(--primary); border-radius:4px; cursor:pointer;" onclick="highlightBar(this, 2.5)" class="active-bar" title="Tuesday: 2.5h"></div>
+              <div style="width:20px; height:30%; background:#CBD5E1; border-radius:4px; cursor:pointer;" onclick="highlightBar(this, 0.9)" title="Wednesday: 0.9h"></div>
+              <div style="width:20px; height:70%; background:#CBD5E1; border-radius:4px; cursor:pointer;" onclick="highlightBar(this, 2.1)" title="Thursday: 2.1h"></div>
+              <div style="width:20px; height:50%; background:#CBD5E1; border-radius:4px; cursor:pointer;" onclick="highlightBar(this, 1.5)" title="Friday: 1.5h"></div>
+              <div style="width:20px; height:20%; background:#CBD5E1; border-radius:4px; cursor:pointer;" onclick="highlightBar(this, 0.5)" title="Saturday: 0.5h"></div>
+              
+              <div style="position:absolute; bottom:6px; left:14px; right:14px; display:flex; justify-content:space-between; font-size:9px; color:var(--text-muted); font-weight:700;">
+                <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+              </div>
+            </div>
+            <p style="font-size:10px; color:var(--text-muted); text-align:center; margin-top:6px;" id="chart-hint">Tip: Tap on any bar to inspect daily focus session</p>
+          </div>
+        </div>
+        
+        <div style="padding-bottom:16px; padding-top:16px;">
+          <button onclick="downloadAnalyticsReport()" class="app-btn app-btn-outline" style="border-radius:12px; font-weight:700;" data-translate="downloadReport">Download Report .PDF</button>
+        </div>
+      </div>
+      
+      <!-- Bottom Tab Nav -->
+      <div class="app-bottom-nav">
+        <button class="app-nav-item" onclick="gotoPage(2)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span class="app-nav-label" data-translate="homeTab">Home</span>
+        </button>
+        <button class="app-nav-item" onclick="gotoPage(4)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span class="app-nav-label" data-translate="calendarTab">Calendar</span>
+        </button>
+        <div class="app-fab-container">
+          <button class="app-fab" onclick="gotoPage(3)">+</button>
+        </div>
+        <button class="app-nav-item active" onclick="gotoPage(8)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span class="app-nav-label" data-translate="statsTab">Stats</span>
+        </button>
+        <button class="app-nav-item" onclick="gotoPage(9)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span class="app-nav-label" data-translate="settingsTab">Settings</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 9. SETTINGS PAGE -->
+    <div class="page" id="page-9">
+      <div class="page-content" style="padding: 16px 20px 0 20px;">
+        <h2 style="font-size:22px; font-weight:800; color:#0F172A; margin-bottom:16px;" id="settings-header" data-translate="settings">Settings</h2>
+        
+        <!-- Reminder Preview Notification Card -->
+        <div class="app-card-gray" style="margin-bottom:20px; border-left: 3px solid var(--primary);">
+          <h3 style="font-size:11px; font-weight:800; color:var(--text-main); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;" data-translate="reminderPreview">Reminder Preview</h3>
+          <div style="background:#FFFFFF; border:1px solid var(--border-color); border-radius:12px; padding:12px; display:flex; gap:10px; box-shadow:var(--shadow-sm); position:relative;">
+            <div style="width:28px; height:28px; background:var(--primary); border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            </div>
+            <div style="flex:1;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                <span style="font-size:12px; font-weight:700; color:#0F172A;">KuKula</span>
+                <span style="font-size:10px; color:var(--text-muted);">now</span>
+              </div>
+              <p style="font-size:12px; font-weight:700; color:#0f172a; margin-bottom:2px;" id="settings-notif-title">Time to study HCI</p>
+              <p style="font-size:11px; color:var(--text-muted); line-height:1.3;" id="settings-notif-body">Your 25-minute Pomodoro session is scheduled to start.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pomodoro Preferences -->
+        <div style="margin-bottom:20px;">
+          <h3 style="font-size:11px; font-weight:800; color:var(--text-main); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;" data-translate="pomodoroPreferences">Pomodoro Preferences</h3>
+          <div class="app-card" style="display:flex; flex-direction:column; gap:14px; padding:12px 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:13px; font-weight:600; color:var(--text-main);" data-translate="focusLengthLabel">Focus length</span>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <button onclick="adjustPrefTimer('focusLength', -5)" class="app-btn-outline" style="width:28px; height:28px; padding:0; border-radius:6px; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center;">-</button>
+                <span style="font-size:13px; font-weight:700; width:36px; text-align:center;" id="pref-focus-val">25m</span>
+                <button onclick="adjustPrefTimer('focusLength', 5)" class="app-btn-outline" style="width:28px; height:28px; padding:0; border-radius:6px; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center;">+</button>
+              </div>
+            </div>
+            <div style="height:1px; background-color:var(--border-color);"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:13px; font-weight:600; color:var(--text-main);" data-translate="breakLengthLabel">Break length</span>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <button onclick="adjustPrefTimer('breakLength', -1)" class="app-btn-outline" style="width:28px; height:28px; padding:0; border-radius:6px; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center;">-</button>
+                <span style="font-size:13px; font-weight:700; width:36px; text-align:center;" id="pref-break-val">5m</span>
+                <button onclick="adjustPrefTimer('breakLength', 1)" class="app-btn-outline" style="width:28px; height:28px; padding:0; border-radius:6px; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center;">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Language Selector -->
+        <div style="margin-bottom:20px;">
+          <h3 style="font-size:11px; font-weight:800; color:var(--text-main); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;" data-translate="languageLabel">Language</h3>
+          <div style="display:flex; gap:6px;">
+            <button class="app-btn-outline active-chip" onclick="changeLang('en')" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer;" id="lang-chip-en-9">English</button>
+            <button class="app-btn-outline" onclick="changeLang('pt')" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer;" id="lang-chip-pt-9">Português</button>
+            <button class="app-btn-outline" onclick="changeLang('ch')" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer;" id="lang-chip-ch-9">Changana</button>
+          </div>
+        </div>
+        
+        <!-- Feedback Style -->
+        <div style="margin-bottom:20px;">
+          <h3 style="font-size:11px; font-weight:800; color:var(--text-main); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;" data-translate="feedbackStyleLabel">Feedback Style</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            <button class="app-btn-outline active-chip" id="feed-vibration" onclick="toggleFeedback('vibration')" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;" data-translate="vibration">Vibration</button>
+            <button class="app-btn-outline active-chip" id="feed-sound" onclick="toggleFeedback('sound')" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;" data-translate="sound">Sound (Chime)</button>
+            <button class="app-btn-outline" id="feed-silent" onclick="toggleFeedback('silent')" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;" data-translate="silent">Silent (Visual only)</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bottom Tab Nav -->
+      <div class="app-bottom-nav">
+        <button class="app-nav-item" onclick="gotoPage(2)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span class="app-nav-label" data-translate="homeTab">Home</span>
+        </button>
+        <button class="app-nav-item" onclick="gotoPage(4)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span class="app-nav-label" data-translate="calendarTab">Calendar</span>
+        </button>
+        <div class="app-fab-container">
+          <button class="app-fab" onclick="gotoPage(3)">+</button>
+        </div>
+        <button class="app-nav-item" onclick="gotoPage(8)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span class="app-nav-label" data-translate="statsTab">Stats</span>
+        </button>
+        <button class="app-nav-item active" onclick="gotoPage(9)">
+          <svg class="app-nav-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span class="app-nav-label" data-translate="settingsTab">Settings</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Home Indicator Line -->
+    <div id="ios-home-indicator" class="home-indicator"></div>
+  </div>
+
+  <!-- Shared App Modal Dialog (Error Prevention / Action Confirmations) -->
+  <div id="app-modal" class="app-modal-overlay" onclick="closeAppModal()">
+    <div class="app-modal-card" onclick="event.stopPropagation()">
+      <h3 style="font-size:16px; font-weight:800; margin-bottom:10px;" id="app-modal-title">Delete Task</h3>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:20px;" id="app-modal-text">Are you sure you want to delete this task? This action cannot be undone.</p>
+      <div style="display:flex; gap:10px;">
+        <button class="app-btn app-btn-outline" style="padding:10px; font-size:13px;" onclick="closeAppModal()">Cancel</button>
+        <button class="app-btn app-btn-primary" style="padding:10px; font-size:13px; background-color:var(--danger);" id="app-modal-confirm-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==================================================== */
+    /* APPLICATION STATE CONTROLLER WITH LOCAL STORAGE      */
+    /* ==================================================== */
+    let activeSubjectForNewTask = "Artificial Intelligence";
+    let activeInspectedSubject = "Artificial Intelligence";
+    let activeStatsRange = "week";
+
+    const defaultState = {
+      activePage: 0,
+      currentLanguage: 'en',
+      sigesConnected: false,
+      offlineMode: true,
+      pomodoroSessionsCount: 4,
+      userName: "João",
+      
+      focusLength: 25,
+      breakLength: 5,
+      feedbackStyle: ['vibration', 'sound'],
+      
+      timerSecondsRemaining: 25 * 60,
+      isTimerRunning: false,
+      focusTimeToday: 75 * 60,
+
+      subjects: [
+        { name: "Artificial Intelligence", count: 8, mastery: 72, color: "#1D63B8", activeOnboarding: true },
+        { name: "Blockchain", count: 2, mastery: 20, color: "#6366F1", activeOnboarding: true },
+        { name: "Cybersecurity", count: 5, mastery: 50, color: "#10B981", activeOnboarding: false },
+        { name: "Cloud Computing", count: 4, mastery: 35, color: "#06B6D4", activeOnboarding: false },
+        { name: "Big Data Analytics", count: 3, mastery: 15, color: "#8B5CF6", activeOnboarding: false },
+        { name: "HCI", count: 11, mastery: 88, color: "#EA580C", activeOnboarding: false }
+      ],
+
+      tasks: [
+        {
+          id: 1,
+          name: "Read 'Artificial Intelligence' Ch 4",
+          subject: "Artificial Intelligence",
+          due: "2h left",
+          progress: 60,
+          completed: false,
+          subtasks: [
+            { name: "Download PDF", completed: true },
+            { name: "Read section 4.1 & 4.2", completed: true },
+            { name: "Summarize findings", completed: false }
+          ]
+        },
+        {
+          id: 2,
+          name: "Pay USTM Tuition (5,000 MZN)",
+          subject: "Administration",
+          due: "Completed",
+          progress: 100,
+          completed: true,
+          subtasks: []
+        },
+        {
+          id: 3,
+          name: "Blockchain Assignment #2",
+          subject: "Blockchain",
+          due: "Tomorrow",
+          progress: 0,
+          completed: false,
+          subtasks: []
+        },
+        {
+          id: 4,
+          name: "Neural Networks Assignment",
+          subject: "Artificial Intelligence",
+          due: "Tomorrow",
+          priority: "high",
+          progress: 33,
+          completed: false,
+          subtasks: [
+            { name: "Review AI concepts", completed: true },
+            { name: "Implement basic perceptron", completed: false },
+            { name: "Test with dataset", completed: false }
+          ]
+        }
+      ],
+      inspectedTaskId: 4,
+      dashboardFilter: 'today',
+      timerInterval: null
+    };
+
+    // Load state from LocalStorage or initialize with defaults
+    let state = localStorage.getItem('kukula_db') 
+      ? JSON.parse(localStorage.getItem('kukula_db')) 
+      : JSON.parse(JSON.stringify(defaultState));
+
+    // Reset intervals on load
+    state.isTimerRunning = false;
+    state.timerInterval = null;
+
+    function saveStateToLocal() {
+      localStorage.setItem('kukula_db', JSON.stringify(state));
+    }
+
+    /* ==================================================== */
+    /* TRANSLATION TABLES & SYSTEM LANGUAGE ROUTING        */
+    /* ==================================================== */
+    const textTranslations = {
+      en: {
+        academicCompanion: "Your smart academic companion",
+        loginEmail: "Log in with University Email",
+        continueGoogle: "Continue with Google",
+        continueApple: "Continue with Apple",
+        termsText: "By continuing, you agree to our Terms of Service and Privacy Policy",
+        previewGuest: "Preview as Guest Mode",
+        selectLanguage: "Select Language",
+        buildPlanTitle: "Build your plan.",
+        buildPlanDesc: "Tell us what you're studying at USTM this semester to generate a smart mental model.",
+        selectSubjects: "Select core subjects",
+        sigesTitle: "Link SIGES Portal",
+        sigesSubtitle: "Import your class timetable",
+        connectBtn: "Connect",
+        continueDashboard: "Continue to Dashboard",
+        today: "Today",
+        upcoming: "Upcoming",
+        done: "Done",
+        homeTab: "Home",
+        calendarTab: "Calendar",
+        statsTab: "Stats",
+        settingsTab: "Settings",
+        createTask: "Create new task",
+        taskNameLabel: "Task Name",
+        subjectLabel: "Subject",
+        dateLabel: "Date",
+        timeLabel: "Time",
+        pomsLabel: "Est. Pomodoro Sessions",
+        saveTaskBtn: "Save task",
+        agendaTitle: "Agenda: Hoje",
+        editTaskBtn: "Edit Task",
+        dueTomorrow: "Due Tomorrow",
+        highPriority: "⚠️ High Priority",
+        subtasksHeader: "Sub-tasks",
+        beginFocus: "Begin Focus Session",
+        saveChanges: "Save Changes",
+        deleteTask: "Delete Task",
+        focusingAI: "Focusing on AI",
+        breakHint: "until short break",
+        startFocus: "Start Focus",
+        endSession: "End Session",
+        todayFocusTime: "Today's Focus Time",
+        yourSubjects: "Your Subjects",
+        editColorLabel: "Edit Subject Color",
+        analytics: "Analytics",
+        tasksCompleted: "Tasks completed",
+        ontimeRate: "On-time rate",
+        focusTime: "Focus time",
+        pendingLabel: "Pending tasks",
+        activityLabel: "Activity (Last 7 Days)",
+        downloadReport: "Download Report .PDF",
+        settings: "Settings",
+        reminderPreview: "Reminder Preview",
+        pomodoroPreferences: "Pomodoro Preferences",
+        focusLengthLabel: "Focus length",
+        feedbackStyleLabel: "Feedback Style",
+        vibration: "Vibration",
+        sound: "Sound (Chime)",
+        silent: "Silent (Visual only)",
+        notifTitle: "Time to study HCI",
+        notifBody: "Your 25-minute Pomodoro session is scheduled to start.",
+        tasksRemaining: "You have {n} tasks remaining"
+      },
+      pt: {
+        academicCompanion: "O teu companheiro académico inteligente",
+        loginEmail: "Entrar com Email da Universidade",
+        continueGoogle: "Continuar com o Google",
+        continueApple: "Continuar com a Apple",
+        termsText: "Ao continuar, aceitas os Termos de Serviço e Política de Privacidade",
+        previewGuest: "Visualizar no Modo Visitante",
+        selectLanguage: "Selecionar Idioma",
+        buildPlanTitle: "Constrói o teu plano.",
+        buildPlanDesc: "Diz-nos o que estás a estudar na USTM este semestre para gerar um modelo mental inteligente.",
+        selectSubjects: "Seleciona as disciplinas fundamentais",
+        sigesTitle: "Vincular Portal SIGES",
+        sigesSubtitle: "Importa o teu horário de aulas",
+        connectBtn: "Ligar",
+        continueDashboard: "Continuar para o Dashboard",
+        today: "Hoje",
+        upcoming: "Próximas",
+        done: "Concluído",
+        homeTab: "Início",
+        calendarTab: "Calendário",
+        statsTab: "Análises",
+        settingsTab: "Definições",
+        createTask: "Criar nova tarefa",
+        taskNameLabel: "Nome da Tarefa",
+        subjectLabel: "Disciplina",
+        dateLabel: "Data",
+        timeLabel: "Hora",
+        pomsLabel: "Sessões Pomodoro Est.",
+        saveTaskBtn: "Salvar tarefa",
+        agendaTitle: "Agenda: Hoje",
+        editTaskBtn: "Editar Tarefa",
+        dueTomorrow: "Vence Amanhã",
+        highPriority: "⚠️ Prioridade Alta",
+        subtasksHeader: "Subtarefas",
+        beginFocus: "Iniciar Sessão de Foco",
+        saveChanges: "Gravar Alterações",
+        deleteTask: "Eliminar Tarefa",
+        focusingAI: "Focado em IA",
+        breakHint: "até ao curto intervalo",
+        startFocus: "Começar Foco",
+        endSession: "Terminar Sessão",
+        todayFocusTime: "Tempo de Foco de Hoje",
+        yourSubjects: "Tuas Disciplinas",
+        editColorLabel: "Editar Cor da Disciplina",
+        analytics: "Análise de Dados",
+        tasksCompleted: "Tarefas concluídas",
+        ontimeRate: "Taxa de pontualidade",
+        focusTime: "Tempo de foco",
+        pendingLabel: "Tarefas pendentes",
+        activityLabel: "Atividade (Últimos 7 dias)",
+        downloadReport: "Baixar Relatório .PDF",
+        settings: "Definições",
+        reminderPreview: "Pré-visualizar Lembrete",
+        pomodoroPreferences: "Preferências Pomodoro",
+        focusLengthLabel: "Duração do Foco",
+        feedbackStyleLabel: "Estilo de Feedback",
+        vibration: "Vibração",
+        sound: "Som (Sinal)",
+        silent: "Silencioso (Visual apenas)",
+        notifTitle: "Hora de estudar IHC",
+        notifBody: "A sua sessão Pomodoro de 25 minutos está agendada para começar.",
+        tasksRemaining: "Tens {n} tarefas restantes"
+      },
+      ch: {
+        academicCompanion: "Mutirhandzi wa wena wa dyondzo",
+        loginEmail: "Nghena hi Email ya USTM",
+        continueGoogle: "Yana emahlweni hi Google",
+        continueApple: "Yana emahlweni hi Apple",
+        termsText: "Loko u ya emahlweni, u pfumela eka Milawu ya Ntirho wa hina",
+        previewGuest: "Kombisa tanihi Mupfhumba",
+        selectLanguage: "Hlawula Ririmi",
+        buildPlanTitle: "Yaka xiyimiso xa wena.",
+        buildPlanDesc: "Hi tshebhe leswi u dyondzaka swona eUSTM nanwina ku endla xiyimiso xo tlhariha.",
+        selectSubjects: "Hlawula tidyondzo ta wena",
+        sigesTitle: "Tlhanganisa ni SIGES",
+        sigesSubtitle: "Khafa xiyimiso xa wena xa klasi",
+        connectBtn: "Tlhanganisa",
+        continueDashboard: "Yana eka Dashboard",
+        today: "Namuntlha",
+        upcoming: "Leyi takaka",
+        done: "Swi herile",
+        homeTab: "Kaya",
+        calendarTab: "Xiyimiso",
+        statsTab: "Tinhlayo",
+        settingsTab: "Tinhlawulo",
+        createTask: "Kha thala ntirho wuntshwa",
+        taskNameLabel: "Vito ra Ntirho",
+        subjectLabel: "Dyondzo",
+        dateLabel: "Siku",
+        timeLabel: "Nkarhi",
+        pomsLabel: "Nkarhi wa Pomodoro lowu vekiweke",
+        saveTaskBtn: "Hlayisa ntirho",
+        agendaTitle: "Xiyimiso: Namuntlha",
+        editTaskBtn: "Lulamisa Ntirho",
+        dueTomorrow: "Mundzuku",
+        highPriority: "⚠️ Ntirho wa xihatla",
+        subtasksHeader: "Mintirho leyitsongo",
+        beginFocus: "Sungula Focus Session",
+        saveChanges: "Hlayisa tinhla",
+        deleteTask: "Sula ntirho",
+        focusingAI: "U fambe hi IA",
+        breakHint: "ku fikela loko u humula",
+        startFocus: "Sungula Foco",
+        endSession: "Herisa dyondzo",
+        todayFocusTime: "Nkarhi wo Foka wa Namuntlha",
+        yourSubjects: "Tidyondzo ta wena",
+        editColorLabel: "Lulamisa Muhlovo wa Dyondzo",
+        analytics: "Tinhlayo ya Mintirho",
+        tasksCompleted: "Mintirho leyi hetiweke",
+        ontimeRate: "Xipimo xa nkarhi",
+        focusTime: "Nkarhi wo dyondza",
+        pendingLabel: "Mintirho leyi seleke",
+        activityLabel: "Mintirho ya masiku ya 7",
+        downloadReport: "Khafa Xiviko .PDF",
+        settings: "Tinhlawulo",
+        reminderPreview: "Kombisa Lembrete",
+        pomodoroPreferences: "Tinhlawulo ta Pomodoro",
+        focusLengthLabel: "Nkarhi wo Foka",
+        feedbackStyleLabel: "Feedback Style",
+        vibration: "Vibration",
+        sound: "Chime (Mpfumawulo)",
+        silent: "Silent (Mee)",
+        notifTitle: "Nkarhi wo dyondza IHC",
+        notifBody: "Nkarhi wa wena wa 25-minute Pomodoro wu lava ku sungula.",
+        tasksRemaining: "U na {n} mintirho leyi seleke"
+      }
+    };
+
+    function translateUI() {
+      const lang = state.currentLanguage;
+      const trans = textTranslations[lang];
+      
+      document.querySelectorAll('[data-translate]').forEach(el => {
+        const key = el.getAttribute('data-translate');
+        if (trans[key]) {
+          el.textContent = trans[key];
+        }
+      });
+      
+      // Handle dynamic templates
+      const greetingText = state.userName === "Guest" ? 
+        (lang === 'ch' ? "U kene, Mupfhumba!" : (lang === 'pt' ? "Bom dia, Visitante!" : "Bom dia, Guest!")) 
+        : (lang === 'ch' ? "U kene, João!" : "Bom dia, João!");
+      
+      document.getElementById('dashboard-greeting').textContent = greetingText;
+      
+      // Update notification card in settings
+      document.getElementById('settings-notif-title').textContent = trans.notifTitle;
+      document.getElementById('settings-notif-body').textContent = trans.notifBody;
+    }
+
+    /* ==================================================== */
+    /* ROUTING CONTROLLER & PAGE TRANSITIONS                */
+    /* ==================================================== */
+    function gotoPage(pageIdx) {
+      // Clear focus timer interval if navigating away from Focus Mode
+      if (state.activePage === 6 && pageIdx !== 6) {
+        clearInterval(state.timerInterval);
+        state.isTimerRunning = false;
+        document.getElementById('btn-focus-toggle').textContent = state.currentLanguage === 'pt' ? "Começar Foco" : (state.currentLanguage === 'ch' ? "Sungula Foco" : "Start Focus");
+      }
+      
+      state.activePage = pageIdx;
+      saveStateToLocal();
+      
+      document.querySelectorAll('.page').forEach((pg, idx) => {
+        if (idx === pageIdx) {
+          pg.classList.add('active');
+        } else {
+          pg.classList.remove('active');
+        }
+      });
+      
+      // UI themes matching Dark/Light modes
+      const statusBar = document.getElementById('shared-status-bar');
+      const homeIndicator = document.getElementById('ios-home-indicator');
+      
+      if (statusBar) {
+        if (pageIdx === 6) { // Focus Mode
+          statusBar.classList.add('dark-theme');
+        } else {
+          statusBar.classList.remove('dark-theme');
+        }
+      }
+      if (homeIndicator) {
+        if (pageIdx === 6) {
+          homeIndicator.classList.add('dark-theme');
+        } else {
+          homeIndicator.classList.remove('dark-theme');
+        }
+      }
+
+      // Refresh data
+      translateUI();
+      if (pageIdx === 2) renderDashboardTasks();
+      if (pageIdx === 3) {
+        const lang = state.currentLanguage;
+        const dateInput = document.getElementById('input-task-date');
+        if (lang === 'pt') {
+          dateInput.value = "Hoje, 14 Out";
+        } else if (lang === 'ch') {
+          dateInput.value = "Namuntlha, 14 Out";
+        } else {
+          dateInput.value = "Today, 14 Oct";
+        }
+        
+        const sessionsWord = lang === 'pt' ? 'sessões' : (lang === 'ch' ? 'tiseshini' : 'sessions');
+        document.getElementById('pomodoro-sessions-counter').textContent = `${state.pomodoroSessionsCount} ${sessionsWord}`;
+        
+        renderAddTaskSubjects();
+      }
+      if (pageIdx === 4) renderCalendarGrid();
+      if (pageIdx === 5) renderTaskDetails();
+      if (pageIdx === 7) renderSubjectManager();
+      if (pageIdx === 8) renderAnalytics();
+      if (pageIdx === 9) renderSettings();
+    }
+
+    /* ==================================================== */
+    /* SCREEN 0: LOGIN & SECURITY CREDENTIALS               */
+    /* ==================================================== */
+    function simulateLoadingLogin(btnEl) {
+      const originalText = btnEl.innerHTML;
+      btnEl.disabled = true;
+      btnEl.innerHTML = `<span style="display:inline-block; width:12px; height:12px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation: pulse 0.8s linear infinite; margin-right:6px;"></span> Nghena...`;
+      
+      setTimeout(() => {
+        btnEl.disabled = false;
+        btnEl.innerHTML = originalText;
+        state.userName = "João";
+        gotoPage(1);
+      }, 1000);
+    }
+    
+    function guestLogin() {
+      state.userName = "Guest";
+      gotoPage(1);
+    }
+    
+    function changeLang(langCode) {
+      state.currentLanguage = langCode;
+      saveStateToLocal();
+      
+      // Update chips on settings and login
+      document.querySelectorAll('[id^="lang-chip-"]').forEach(el => {
+        if (el.id.split('-')[2] === langCode) {
+          el.classList.add('active-chip');
+        } else {
+          el.classList.remove('active-chip');
+        }
+      });
+      gotoPage(state.activePage);
+    }
+
+    /* ==================================================== */
+    /* SCREEN 1: ONBOARDING TIMETABLE IMPORT                */
+    /* ==================================================== */
+    function renderSubjectsOnboarding() {
+      const container = document.getElementById('onboarding-subjects-container');
+      container.innerHTML = '';
+      
+      state.subjects.forEach((subj) => {
+        const chip = document.createElement('button');
+        chip.className = `app-btn-outline ${subj.activeOnboarding ? 'active-chip' : ''}`;
+        chip.style.padding = '8px 14px';
+        chip.style.fontSize = '12px';
+        chip.style.borderRadius = '20px';
+        chip.style.width = 'auto';
+        chip.style.cursor = 'pointer';
+        chip.textContent = getLocalizedSubjectName(subj.name);
+        
+        chip.onclick = () => {
+          subj.activeOnboarding = !subj.activeOnboarding;
+          saveStateToLocal();
+          renderSubjectsOnboarding();
+        };
+        container.appendChild(chip);
+      });
+      
+      // Customizable chip
+      const customChip = document.createElement('button');
+      customChip.className = 'app-btn-outline';
+      customChip.style.padding = '8px 14px';
+      customChip.style.fontSize = '12px';
+      customChip.style.borderRadius = '20px';
+      customChip.style.width = 'auto';
+      customChip.style.borderStyle = 'dashed';
+      customChip.textContent = '+ Customizar';
+      customChip.onclick = () => {
+        const name = prompt("Enter custom subject name:");
+        if (name) {
+          state.subjects.push({
+            name: name,
+            count: 0,
+            mastery: 0,
+            color: "#6366F1",
+            activeOnboarding: true
+          });
+          saveStateToLocal();
+          renderSubjectsOnboarding();
+        }
+      };
+      container.appendChild(customChip);
+    }
+
+    function connectSiges() {
+      const overlay = document.getElementById('siges-spinner');
+      const text = document.getElementById('siges-spinner-text');
+      const btn = document.getElementById('siges-btn');
+      const card = document.getElementById('siges-card');
+      const title = document.getElementById('siges-title');
+      const subtitle = document.getElementById('siges-subtitle');
+      
+      overlay.style.display = 'flex';
+      
+      setTimeout(() => {
+        text.textContent = "Syncing class timetable...";
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          state.sigesConnected = true;
+          saveStateToLocal();
+          
+          btn.textContent = 'Linked ✓';
+          btn.style.color = '#10B981';
+          btn.style.borderColor = '#10B981';
+          card.style.borderColor = '#10B981';
+          card.style.backgroundColor = '#ECFDF5';
+          title.textContent = 'SIGES Portal Sync';
+          subtitle.textContent = 'Class timetables imported successfully';
+        }, 1200);
+      }, 1000);
+    }
+
+    function completeOnboarding() {
+      gotoPage(2);
+    }
+
+    function getLocalizedDue(dueText) {
+      const lang = state.currentLanguage;
+      const trans = textTranslations[lang];
+      const lower = dueText.toLowerCase();
+      
+      if (lower === 'completed') {
+        return lang === 'pt' ? 'Concluído' : (lang === 'ch' ? 'Swi herile' : 'Completed');
+      } else if (lower === 'tomorrow') {
+        return lang === 'pt' ? 'Amanhã' : (lang === 'ch' ? 'Mundzuku' : 'Tomorrow');
+      } else if (lower.includes('left') || lower.includes('hora') || lower.includes('nkarhi')) {
+        if (lang === 'pt') {
+          return dueText.replace('2h left', 'Faltam 2h').replace('left', 'restantes');
+        } else if (lang === 'ch') {
+          return dueText.replace('2h left', '2h leyi seleke');
+        }
+        return dueText;
+      } else if (lower.includes('out') || lower.includes('oct')) {
+        if (lang === 'en') {
+          return dueText.replace('Hoje', 'Today').replace('Out', 'Oct');
+        } else if (lang === 'ch') {
+          return dueText.replace('Hoje', 'Namuntlha').replace('Out', 'Out');
+        } else {
+          return dueText.replace('Today', 'Hoje').replace('Oct', 'Out');
+        }
+      }
+      return dueText;
+    }
+
+    function getLocalizedSubjectName(subjName) {
+      const lang = state.currentLanguage;
+      if (lang === 'pt') {
+        if (subjName === "Artificial Intelligence") return "Inteligência Artificial";
+        if (subjName === "Blockchain") return "Blockchain";
+        if (subjName === "Cybersecurity") return "Cibersegurança";
+        if (subjName === "Cloud Computing") return "Computação em Nuvem";
+        if (subjName === "Big Data Analytics") return "Análise de Big Data";
+        if (subjName === "HCI") return "IHC";
+        if (subjName === "Administration") return "Administração";
+      } else if (lang === 'ch') {
+        if (subjName === "Artificial Intelligence") return "Tindzimi ta IA";
+        if (subjName === "Blockchain") return "Blockchain";
+        if (subjName === "Cybersecurity") return "Cybersecurity";
+        if (subjName === "Cloud Computing") return "Computação em Nuvem";
+        if (subjName === "Big Data Analytics") return "Big Data";
+        if (subjName === "HCI") return "IHC";
+        if (subjName === "Administration") return "Valawuri";
+      }
+      return subjName;
+    }
+
+    /* ==================================================== */
+    /* SCREEN 2: DASHBOARD (TASKS & OFFLINE RESILIENCE)    */
+    /* ==================================================== */
+    function renderDashboardTasks() {
+      updateOfflineUI();
+      const container = document.getElementById('dashboard-tasks-container');
+      container.innerHTML = '';
+      
+      const trans = textTranslations[state.currentLanguage];
+      const remainingCount = state.tasks.filter(t => !t.completed).length;
+      document.getElementById('dashboard-tasks-count').textContent = trans.tasksRemaining.replace('{n}', remainingCount);
+      
+      const activeTasks = state.tasks.filter(t => {
+        if (state.dashboardFilter === 'today') {
+          return !t.completed && (t.due.toLowerCase().includes('hour') || t.due.toLowerCase().includes('left') || t.due.toLowerCase().includes('tomorrow'));
+        } else if (state.dashboardFilter === 'upcoming') {
+          return !t.completed && !t.due.toLowerCase().includes('left') && !t.due.toLowerCase().includes('hour');
+        } else {
+          return t.completed;
+        }
+      });
+
+      if (activeTasks.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+            <p style="font-size:13px; font-weight:600;">No tasks found.</p>
+          </div>
+        `;
+        return;
+      }
+
+      activeTasks.forEach(task => {
+        const card = document.createElement('div');
+        card.className = 'app-card';
+        card.style.cursor = 'pointer';
+        card.style.padding = '14px 16px';
+        card.style.display = 'flex';
+        card.style.gap = '12px';
+        card.style.alignItems = 'flex-start';
+        
+        const subObj = state.subjects.find(s => s.name === task.subject);
+        const subColor = subObj ? subObj.color : '#8B5CF6';
+        const isChecked = task.completed ? 'checked' : '';
+        
+        card.innerHTML = `
+          <div class="app-checkbox ${isChecked}" onclick="toggleTaskCompletion(${task.id}, event)"></div>
+          <div style="flex:1;" onclick="inspectTask(${task.id})">
+            <h4 style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:4px; ${task.completed ? 'text-decoration:line-through; opacity:0.5;' : ''}">${task.name}</h4>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="subject-badge">
+                <span class="subject-dot" style="background-color:${subColor};"></span>
+                ${getLocalizedSubjectName(task.subject)}
+              </span>
+              <span class="app-btn-outline" style="padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700; color:${task.completed ? 'var(--success)' : 'var(--text-muted)'}; background-color:${task.completed ? 'var(--success-light)' : 'transparent'}; border-color:${task.completed ? 'rgba(34,197,94,0.2)' : 'var(--border-color)'}">${getLocalizedDue(task.due)}</span>
+            </div>
+            ${!task.completed && task.progress > 0 ? `
+              <div style="height:6px; background:#F1F5F9; border-radius:9999px; overflow:hidden; margin-top:10px;">
+                <div style="width:${task.progress}%; height:100%; background:var(--primary); border-radius:9999px;"></div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function toggleTaskCompletion(taskId, event) {
+      if (event) event.stopPropagation();
+      const task = state.tasks.find(t => t.id === taskId);
+      if (task) {
+        task.completed = !task.completed;
+        task.due = task.completed ? 'Completed' : 'Tomorrow';
+        task.progress = task.completed ? 100 : 0;
+        saveStateToLocal();
+        renderDashboardTasks();
+      }
+    }
+
+    function filterDashboard(filterName) {
+      state.dashboardFilter = filterName;
+      document.querySelectorAll('#page-2 button').forEach(btn => btn.classList.remove('active-tab-btn'));
+      document.getElementById(`tab-${filterName}`).classList.add('active-tab-btn');
+      renderDashboardTasks();
+    }
+
+    /* ==================================================== */
+    /* SCREEN 3: ADD TASK CONTROLS                          */
+    /* ==================================================== */
+    function adjustPomCounter(amount) {
+      state.pomodoroSessionsCount = Math.max(1, state.pomodoroSessionsCount + amount);
+      const lang = state.currentLanguage;
+      const sessionsWord = lang === 'pt' ? 'sessões' : (lang === 'ch' ? 'tiseshini' : 'sessions');
+      document.getElementById('pomodoro-sessions-counter').textContent = `${state.pomodoroSessionsCount} ${sessionsWord}`;
+      saveStateToLocal();
+    }
+
+    function renderAddTaskSubjects() {
+      const container = document.getElementById('add-task-subjects-container');
+      container.innerHTML = '';
+      
+      state.subjects.forEach(subj => {
+        const chip = document.createElement('button');
+        chip.className = `app-btn-outline ${subj.name === activeSubjectForNewTask ? 'active-chip' : ''}`;
+        chip.style.padding = '6px 12px';
+        chip.style.borderRadius = '8px';
+        chip.style.fontSize = '12px';
+        chip.style.width = 'auto';
+        chip.textContent = getLocalizedSubjectName(subj.name);
+        chip.onclick = () => {
+          activeSubjectForNewTask = subj.name;
+          renderAddTaskSubjects();
+        };
+        container.appendChild(chip);
+      });
+    }
+
+    function saveTask() {
+      const nameInput = document.getElementById('input-task-name');
+      const name = nameInput.value.trim();
+      if (!name) {
+        const isPt = state.currentLanguage === 'pt';
+        const isCh = state.currentLanguage === 'ch';
+        const title = isPt ? "Erro de Validação" : (isCh ? "Xihoxo" : "Validation Error");
+        const body = isPt ? "Por favor, introduza o nome da tarefa." : (isCh ? "Ntsena sungula ku tsala vito ra ntirho." : "Please enter a task name.");
+        openAppModal(title, body, () => { closeAppModal(); });
+        return;
+      }
+      
+      const date = document.getElementById('input-task-date').value;
+      const time = document.getElementById('input-task-time').value;
+      
+      const newTask = {
+        id: state.tasks.length + 1,
+        name: name,
+        subject: activeSubjectForNewTask,
+        due: date || 'Tomorrow',
+        progress: 0,
+        completed: false,
+        subtasks: []
+      };
+      
+      state.tasks.push(newTask);
+      
+      // Increment tasks count for that subject
+      const subj = state.subjects.find(s => s.name === activeSubjectForNewTask);
+      if (subj) subj.count++;
+      
+      saveStateToLocal();
+      
+      // Success toast banner animation
+      const toast = document.getElementById('save-task-toast');
+      toast.style.display = 'block';
+      setTimeout(() => toast.style.opacity = '1', 50);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.style.display = 'none', 300);
+        nameInput.value = '';
+        gotoPage(2);
+      }, 1200);
+    }
+
+    /* ==================================================== */
+    /* SCREEN 4: CALENDAR GRID & EVENTS DATABASE            */
+    /* ==================================================== */
+    let activeCalendarDay = 14;
+    
+    // Multi-date events pre-population
+    const calendarEvents = {
+      6: [{ title: "AI Lecture", time: "13:00", loc: "Campus Principal USTM - Sala 2", color: "var(--primary)" }],
+      7: [{ title: "Blockchain Lab", time: "11:00", loc: "Lab de Informática 3", color: "#6366F1" }],
+      14: [
+        { title: "Cloud Computing Lecture", time: "10:00", loc: "Campus Principal USTM - Sala 4", color: "var(--primary)" },
+        { title: "HCI Group Study", time: "14:30", loc: "Biblioteca Central", color: "var(--warning)" }
+      ],
+      15: [{ title: "Cybersecurity Quiz", time: "09:00", loc: "Auditório Central", color: "var(--success)" }]
+    };
+
+    function renderCalendarGrid() {
+      const lang = state.currentLanguage;
+      const monthsEn = ["September", "October", "November"];
+      const monthsPt = ["Setembro", "Outubro", "Novembro"];
+      const monthsCh = ["Ndzati", "Nhlangula", "Hala"];
+      
+      const currentMonths = lang === 'pt' ? monthsPt : (lang === 'ch' ? monthsCh : monthsEn);
+      
+      const titleEl = document.getElementById('calendar-month-title');
+      const currentText = titleEl.textContent;
+      if (currentText.includes('October') || currentText.includes('Outubro') || currentText.includes('Nhlangula')) {
+        titleEl.textContent = `${currentMonths[1]} 2026`;
+      } else if (currentText.includes('September') || currentText.includes('Setembro') || currentText.includes('Ndzati')) {
+        titleEl.textContent = `${currentMonths[0]} 2026`;
+      } else if (currentText.includes('November') || currentText.includes('Novembro') || currentText.includes('Hala')) {
+        titleEl.textContent = `${currentMonths[2]} 2026`;
+      }
+
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '';
+      
+      // Render previous month days
+      for (let i = 27; i < 31; i++) {
+        const cell = document.createElement('div');
+        cell.style.color = '#CBD5E1';
+        cell.style.padding = '8px 0';
+        cell.style.textAlign = 'center';
+        cell.textContent = i;
+        grid.appendChild(cell);
+      }
+      
+      // Render active month days
+      for (let day = 1; day <= 21; day++) {
+        const cell = document.createElement('div');
+        cell.style.padding = '8px 0';
+        cell.style.textAlign = 'center';
+        cell.style.borderRadius = '50%';
+        cell.style.cursor = 'pointer';
+        cell.style.position = 'relative';
+        cell.style.fontWeight = '600';
+        cell.textContent = day;
+        
+        if (day === activeCalendarDay) {
+          cell.style.backgroundColor = 'var(--primary)';
+          cell.style.color = '#FFFFFF';
+        }
+        
+        // Add event indicator dots matching wireframe highlights
+        if (calendarEvents[day]) {
+          const dotColor = calendarEvents[day][0].color;
+          cell.innerHTML += `<span style="position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:4px; height:4px; background-color:${dotColor}; border-radius:50%;"></span>`;
+        }
+        
+        cell.onclick = () => {
+          activeCalendarDay = day;
+          
+          const monthName = lang === 'en' ? 'Oct' : 'Out';
+          const agendaPrefix = lang === 'ch' ? 'Xiyimiso' : 'Agenda';
+          
+          let titleText = `${agendaPrefix}: ${day} ${monthName}`;
+          if (day === 14) {
+            titleText = lang === 'ch' ? 'Xiyimiso: Namuntlha' : (lang === 'pt' ? 'Agenda: Hoje' : 'Agenda: Today');
+          } else if (day === 15) {
+            titleText = lang === 'ch' ? 'Xiyimiso: Mundzuku' : (lang === 'pt' ? 'Agenda: Amanhã' : 'Agenda: Tomorrow');
+          }
+          
+          document.getElementById('agenda-date-title').textContent = titleText;
+          renderEventsForDay(day);
+          
+          document.querySelectorAll('#calendar-grid div').forEach(c => {
+            if (c.style.backgroundColor === 'var(--primary)') {
+              c.style.backgroundColor = 'transparent';
+              c.style.color = 'inherit';
+            }
+          });
+          cell.style.backgroundColor = 'var(--primary)';
+          cell.style.color = '#FFFFFF';
+        };
+        grid.appendChild(cell);
+      }
+      
+      // Update agenda title for initial render
+      const monthName = lang === 'en' ? 'Oct' : 'Out';
+      const agendaPrefix = lang === 'ch' ? 'Xiyimiso' : 'Agenda';
+      let titleText = `${agendaPrefix}: ${activeCalendarDay} ${monthName}`;
+      if (activeCalendarDay === 14) {
+        titleText = lang === 'ch' ? 'Xiyimiso: Namuntlha' : (lang === 'pt' ? 'Agenda: Hoje' : 'Agenda: Today');
+      } else if (activeCalendarDay === 15) {
+        titleText = lang === 'ch' ? 'Xiyimiso: Mundzuku' : (lang === 'pt' ? 'Agenda: Amanhã' : 'Agenda: Tomorrow');
+      }
+      document.getElementById('agenda-date-title').textContent = titleText;
+      
+      renderEventsForDay(activeCalendarDay);
+    }
+
+    function renderEventsForDay(day) {
+      const container = document.getElementById('agenda-events-container');
+      container.innerHTML = '';
+      
+      let eventsHtml = '';
+      const events = calendarEvents[day] || [];
+      events.forEach(ev => {
+        let titleText = ev.title;
+        const lang = state.currentLanguage;
+        if (ev.title === "AI Lecture") {
+          titleText = lang === 'pt' ? "Aula de IA" : (lang === 'ch' ? "Dyondzo ya IA" : "AI Lecture");
+        } else if (ev.title === "Blockchain Lab") {
+          titleText = lang === 'pt' ? "Lab de Blockchain" : (lang === 'ch' ? "Lab ya Blockchain" : "Blockchain Lab");
+        } else if (ev.title === "Cloud Computing Lecture") {
+          titleText = lang === 'pt' ? "Aula de Cloud Computing" : (lang === 'ch' ? "Dyondzo ya Cloud" : "Cloud Computing Lecture");
+        } else if (ev.title === "HCI Group Study") {
+          titleText = lang === 'pt' ? "Estudo de Grupo de IHC" : (lang === 'ch' ? "Dyondzo ya Ntlawa ya IHC" : "HCI Group Study");
+        } else if (ev.title === "Cybersecurity Quiz") {
+          titleText = lang === 'pt' ? "Quiz de Cibersegurança" : (lang === 'ch' ? "Quiz ya Cybersecurity" : "Cybersecurity Quiz");
+        }
+
+        eventsHtml += `
+          <div style="display:flex; gap:12px; margin-bottom:12px;">
+            <div style="width:4px; background-color:${ev.color}; border-radius:4px;"></div>
+            <div style="flex:1; display:flex; justify-content:space-between;">
+              <div>
+                <h4 style="font-size:13px; font-weight:700; color:#0F172A;">${titleText}</h4>
+                <p style="font-size:11px; color:var(--text-muted); margin-top:2px;">${ev.loc}</p>
+              </div>
+              <span style="font-size:11px; font-weight:700; color:${ev.color};">${ev.time}</span>
+            </div>
+          </div>
+        `;
+      });
+      
+      const dayStr = `${day} Out`;
+      const tasksMatching = state.tasks.filter(t => {
+        const dueLower = t.due.toLowerCase();
+        if (day === activeCalendarDay) {
+          if (day === 14 && (dueLower.includes('hoje') || dueLower.includes('left') || dueLower.includes('today') || dueLower.includes('hour'))) {
+            return true;
+          }
+          if (day === 15 && (dueLower.includes('amanhã') || dueLower.includes('tomorrow'))) {
+            return true;
+          }
+        }
+        return dueLower.includes(dayStr.toLowerCase()) || dueLower.includes(`${day} out`);
+      });
+
+      tasksMatching.forEach(task => {
+        const subObj = state.subjects.find(s => s.name === task.subject);
+        const subColor = subObj ? subObj.color : 'var(--primary)';
+        
+        eventsHtml += `
+          <div style="display:flex; gap:12px; margin-bottom:12px; cursor:pointer;" onclick="inspectTask(${task.id})">
+            <div style="width:4px; background-color:${subColor}; border-radius:4px;"></div>
+            <div style="flex:1; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <h4 style="font-size:13px; font-weight:700; color:#0F172A; ${task.completed ? 'text-decoration:line-through; opacity:0.6;' : ''}">${task.name}</h4>
+                  <span style="font-size:9px; background-color:var(--primary-light); color:var(--primary); padding:1px 4px; border-radius:3px; font-weight:700; text-transform:uppercase;">Task</span>
+                </div>
+                <p style="font-size:11px; color:var(--text-muted); margin-top:2px;">${task.subject}</p>
+              </div>
+              <span style="font-size:11px; font-weight:700; color:${task.completed ? 'var(--success)' : 'var(--text-muted)'}">${task.completed ? 'Done' : 'Pending'}</span>
+            </div>
+          </div>
+        `;
+      });
+      
+      if (eventsHtml) {
+        container.innerHTML = eventsHtml;
+      } else {
+        container.innerHTML = `
+          <p style="font-size:12px; color:var(--text-muted); text-align:center; padding:16px;">No lectures or tasks scheduled.</p>
+        `;
+      }
+    }
+
+    function shiftCalendarMonth(dir) {
+      const lang = state.currentLanguage;
+      const monthsEn = ["September", "October", "November"];
+      const monthsPt = ["Setembro", "Outubro", "Novembro"];
+      const monthsCh = ["Ndzati", "Nhlangula", "Hala"];
+      
+      const currentMonths = lang === 'pt' ? monthsPt : (lang === 'ch' ? monthsCh : monthsEn);
+      
+      let curr = currentMonths.indexOf(document.getElementById('calendar-month-title').textContent.split(' ')[0]);
+      if (curr === -1) {
+        const text = document.getElementById('calendar-month-title').textContent.split(' ')[0];
+        curr = monthsEn.indexOf(text);
+        if (curr === -1) curr = monthsPt.indexOf(text);
+        if (curr === -1) curr = monthsCh.indexOf(text);
+      }
+      
+      let nextIdx = Math.min(2, Math.max(0, curr + dir));
+      document.getElementById('calendar-month-title').textContent = `${currentMonths[nextIdx]} 2026`;
+    }
+
+    /* ==================================================== */
+    /* SCREEN 5: TASK DETAIL CHECKLISTS                     */
+    /* ==================================================== */
+    function renderTaskDetails() {
+      const task = state.tasks.find(t => t.id === state.inspectedTaskId) || state.tasks[3];
+      
+      document.getElementById('detail-task-title').textContent = task.name;
+      document.getElementById('detail-subject-name').textContent = getLocalizedSubjectName(task.subject).toUpperCase();
+      document.getElementById('detail-badge-due').textContent = getLocalizedDue(task.due);
+      
+      const priorityEl = document.getElementById('detail-badge-priority');
+      priorityEl.style.display = task.priority === 'high' ? 'flex' : 'none';
+      
+      const subtasks = task.subtasks || [];
+      const total = subtasks.length;
+      const completed = subtasks.filter(s => s.completed).length;
+      const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
+      
+      document.getElementById('detail-progress-fill').style.width = `${pct}%`;
+      document.getElementById('detail-progress-label').textContent = `${completed} / ${total} Sub-tasks done`;
+      
+      const subObj = state.subjects.find(s => s.name === task.subject);
+      document.getElementById('detail-subject-dot').style.backgroundColor = subObj ? subObj.color : '#8B5CF6';
+      
+      const container = document.getElementById('detail-subtasks-container');
+      container.innerHTML = '';
+      
+      subtasks.forEach((st, idx) => {
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.gap = '12px';
+        
+        const isStriked = st.completed ? 'text-decoration:line-through; color:var(--text-muted);' : 'font-weight:600; color:var(--text-main);';
+        const isChecked = st.completed ? 'checked' : '';
+        
+        item.innerHTML = `
+          <div class="app-checkbox ${isChecked}" onclick="toggleSubtaskComplete(${task.id}, ${idx})"></div>
+          <span style="font-size:12px; ${isStriked}">${st.name}</span>
+        `;
+        container.appendChild(item);
+      });
+      
+      const addTrigger = document.createElement('button');
+      addTrigger.className = 'app-btn-outline';
+      addTrigger.style.padding = '8px';
+      addTrigger.style.borderStyle = 'dashed';
+      addTrigger.style.fontSize = '12px';
+      addTrigger.style.fontWeight = '600';
+      addTrigger.textContent = '+ Add subtask';
+      addTrigger.onclick = () => {
+        const name = prompt("Enter subtask title:");
+        if (name) {
+          task.subtasks.push({ name: name, completed: false });
+          task.progress = Math.round((task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100);
+          saveStateToLocal();
+          renderTaskDetails();
+        }
+      };
+      container.appendChild(addTrigger);
+    }
+
+    function toggleSubtaskComplete(taskId, idx) {
+      const task = state.tasks.find(t => t.id === taskId);
+      if (task && task.subtasks[idx]) {
+        task.subtasks[idx].completed = !task.subtasks[idx].completed;
+        const total = task.subtasks.length;
+        const completed = task.subtasks.filter(s => s.completed).length;
+        task.progress = Math.round((completed / total) * 100);
+        
+        if (completed === total) {
+          task.completed = true;
+          task.due = 'Completed';
+        } else {
+          task.completed = false;
+          task.due = 'Tomorrow';
+        }
+        
+        saveStateToLocal();
+        renderTaskDetails();
+      }
+    }
+
+    // Modal dialogue confirmation triggers
+    function deleteCurrentTaskPrompt() {
+      openAppModal("Delete Task", "Are you sure you want to delete this task? This action cannot be undone.", () => {
+        state.tasks = state.tasks.filter(t => t.id !== state.inspectedTaskId);
+        saveStateToLocal();
+        closeAppModal();
+        gotoPage(2);
+      });
+    }
+
+    function editCurrentTask() {
+      const task = state.tasks.find(t => t.id === state.inspectedTaskId);
+      const name = prompt("Edit Task Name:", task.name);
+      if (name) {
+        task.name = name.trim();
+        saveStateToLocal();
+        renderTaskDetails();
+      }
+    }
+
+    /* ==================================================== */
+    /* SCREEN 6: FOCUS MODE POMODORO TIMER                  */
+    /* ==================================================== */
+    function launchFocusSession() {
+      const task = state.tasks.find(t => t.id === state.inspectedTaskId) || state.tasks[3];
+      document.getElementById('focus-task-title').textContent = task.name;
+      
+      state.timerSecondsRemaining = state.focusLength * 60;
+      updateFocusTimerUI();
+      
+      gotoPage(6);
+    }
+
+    function togglePomodoroTimer() {
+      const btn = document.getElementById('btn-focus-toggle');
+      if (state.isTimerRunning) {
+        // Pause timer
+        clearInterval(state.timerInterval);
+        state.isTimerRunning = false;
+        btn.textContent = state.currentLanguage === 'pt' ? "Começar Foco" : (state.currentLanguage === 'ch' ? "Sungula Foco" : "Start Focus");
+      } else {
+        // Start timer
+        state.isTimerRunning = true;
+        btn.textContent = state.currentLanguage === 'pt' ? "Pausar Foco" : (state.currentLanguage === 'ch' ? "Pause Focus" : "Pause Focus");
+        
+        state.timerInterval = setInterval(() => {
+          state.timerSecondsRemaining--;
+          state.focusTimeToday++;
+          
+          if (state.timerSecondsRemaining <= 0) {
+            clearInterval(state.timerInterval);
+            const isPt = state.currentLanguage === 'pt';
+            const isCh = state.currentLanguage === 'ch';
+            const title = isPt ? "Sessão de Foco Concluída" : (isCh ? "Focus Session Yi Hetiwile" : "Focus Session Completed");
+            const body = isPt ? "Parabéns! Completou a sua sessão de foco." : (isCh ? "Inkomu! U hetile focus session ya wena." : "Congratulations! You finished your focus session.");
+            openAppModal(title, body, () => {
+              closeAppModal();
+              endFocusSession();
+            });
+          }
+          updateFocusTimerUI();
+        }, 1000);
+      }
+    }
+
+    function updateFocusTimerUI() {
+      const mins = Math.floor(state.timerSecondsRemaining / 60);
+      const secs = state.timerSecondsRemaining % 60;
+      const timeStr = `${mins}:${secs < 10 ? '0' + secs : secs}`;
+      
+      document.getElementById('focus-timer-text').textContent = timeStr;
+      document.getElementById('island-timer-text').textContent = `● ${timeStr}`;
+      
+      // Update circle progress
+      const maxSecs = state.focusLength * 60;
+      const pct = state.timerSecondsRemaining / maxSecs;
+      document.getElementById('timer-stroke').setAttribute('stroke-dashoffset', Math.round(597 * (1 - pct)));
+      
+      // Update totals
+      const totalMins = Math.floor(state.focusTimeToday / 60);
+      document.getElementById('focus-total-today').textContent = `${Math.floor(totalMins / 60)}h ${totalMins % 60}m`;
+      
+      saveStateToLocal();
+    }
+
+    function endFocusSession() {
+      clearInterval(state.timerInterval);
+      state.isTimerRunning = false;
+      state.timerSecondsRemaining = state.focusLength * 60;
+      
+      document.getElementById('btn-focus-toggle').textContent = state.currentLanguage === 'pt' ? "Começar Foco" : (state.currentLanguage === 'ch' ? "Sungula Foco" : "Start Focus");
+      document.getElementById('timer-stroke').setAttribute('stroke-dashoffset', 0);
+      document.getElementById('focus-timer-text').textContent = `${state.focusLength}:00`;
+      
+      gotoPage(5);
+    }
+    
+    function toggleIslandWidget() {
+      const island = document.getElementById('dynamic-island');
+      island.classList.toggle('island-expanded');
+    }
+
+    /* ==================================================== */
+    /* SCREEN 7: SUBJECT MANAGER (ACCORDION & COLOR MAP)   */
+    /* ==================================================== */
+    function renderSubjectManager() {
+      const container = document.getElementById('subject-manager-list');
+      container.innerHTML = '';
+      
+      state.subjects.forEach(subj => {
+        const card = document.createElement('div');
+        card.className = 'app-card';
+        card.style.padding = '12px 16px';
+        card.style.borderLeft = `4px solid ${subj.color}`;
+        
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleSubjectAccordion('${subj.name}')">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="subject-dot" style="background-color:${subj.color}; width:10px; height:10px;"></span>
+              <h3 style="font-size:14px; font-weight:700; color:var(--text-main);">${getLocalizedSubjectName(subj.name)}</h3>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="app-btn-outline" style="padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700;">
+                ${subj.count} tasks <span id="acc-icon-${subj.name.replace(/\s+/g, '-')}">▼</span>
+              </span>
+            </div>
+          </div>
+          <div class="subject-manager-progress">
+            <div class="subject-manager-fill" style="width:${subj.mastery}%; background-color:${subj.color};"></div>
+          </div>
+          <p style="font-size:10px; color:var(--text-muted); text-align:right; font-weight:600; margin-top:4px;">${subj.mastery}% Mastery</p>
+          
+          <div id="acc-content-${subj.name.replace(/\s+/g, '-')}" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid #F1F5F9; flex-direction:column; gap:8px;">
+            ${renderSubjectTasksList(subj.name)}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function toggleSubjectAccordion(subjName) {
+      activeInspectedSubject = subjName;
+      const content = document.getElementById(`acc-content-${subjName.replace(/\s+/g, '-')}`);
+      const icon = document.getElementById(`acc-icon-${subjName.replace(/\s+/g, '-')}`);
+      
+      if (content.style.display === 'none' || content.style.display === '') {
+        content.style.display = 'flex';
+        icon.textContent = '▲';
+        
+        // Sync color picker highlight
+        const subj = state.subjects.find(s => s.name === subjName);
+        if (subj) {
+          const picker = document.getElementById('edit-color-picker');
+          picker.querySelectorAll('.subject-dot').forEach(el => {
+            if (el.style.backgroundColor === subj.color || rgbToHex(el.style.backgroundColor) === subj.color.toLowerCase()) {
+              el.style.border = '2px solid #FFF';
+              el.style.boxShadow = `0 0 0 2px var(--primary)`;
+            } else {
+              el.style.border = 'none';
+              el.style.boxShadow = 'none';
+            }
+          });
+        }
+      } else {
+        content.style.display = 'none';
+        icon.textContent = '▼';
+      }
+    }
+
+    function renderSubjectTasksList(subjName) {
+      const subjTasks = state.tasks.filter(t => t.subject === subjName);
+      if (subjTasks.length === 0) {
+        return `<p style="font-size:11px; color:var(--text-muted); font-style:italic;">No tasks scheduled.</p>`;
+      }
+      return subjTasks.map(t => `
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; cursor:pointer;" onclick="inspectTask(${t.id})">
+          <span style="font-weight:600; color:var(--text-main); text-decoration:${t.completed ? 'line-through' : 'none'}; opacity:${t.completed ? 0.6 : 1};">${t.name}</span>
+          <span style="font-size:10px; font-weight:700; color:var(--text-muted);">${getLocalizedDue(t.due)}</span>
+        </div>
+      `).join('');
+    }
+
+    function pickSubjectColor(hexColor) {
+      const subj = state.subjects.find(s => s.name === activeInspectedSubject);
+      if (subj) {
+        subj.color = hexColor;
+        saveStateToLocal();
+        
+        // Update picker highlight
+        const picker = document.getElementById('edit-color-picker');
+        picker.querySelectorAll('.subject-dot').forEach(el => {
+          if (el.style.backgroundColor === hexColor || rgbToHex(el.style.backgroundColor) === hexColor.toLowerCase()) {
+            el.style.border = '2px solid #FFF';
+            el.style.boxShadow = `0 0 0 2px var(--primary)`;
+          } else {
+            el.style.border = 'none';
+            el.style.boxShadow = 'none';
+          }
+        });
+        
+        renderSubjectManager();
+      }
+    }
+
+    function rgbToHex(rgb) {
+      if (rgb.startsWith('rgb')) {
+        const parts = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        delete(parts[0]);
+        for (let i = 1; i <= 3; ++i) {
+          parts[i] = parseInt(parts[i]).toString(16);
+          if (parts[i].length == 1) parts[i] = '0' + parts[i];
+        }
+        return '#' + parts.join('');
+      }
+      return rgb;
+    }
+
+    function addNewSubjectPrompt() {
+      const name = prompt("Enter new subject name:");
+      if (name) {
+        state.subjects.push({
+          name: name,
+          count: 0,
+          mastery: 0,
+          color: "#06B6D4",
+          activeOnboarding: false
+        });
+        saveStateToLocal();
+        renderSubjectManager();
+      }
+    }
+
+    /* ==================================================== */
+    /* SCREEN 8: PROGRESS TRACKER                           */
+    /* ==================================================== */
+    function renderAnalytics() {
+      const pending = state.tasks.filter(t => !t.completed).length;
+      const completed = state.tasks.filter(t => t.completed).length;
+      
+      const isWk = activeStatsRange === 'week';
+      
+      document.getElementById('stat-pending-val').textContent = isWk ? pending : pending + 9;
+      document.getElementById('stat-completed-val').textContent = isWk ? completed + 10 : completed + 48;
+      
+      const totalMins = Math.floor(state.focusTimeToday / 60);
+      const hrs = (totalMins / 60).toFixed(1);
+      
+      document.getElementById('stat-focus-val').textContent = isWk ? `${hrs}h` : `${(parseFloat(hrs) + 18.3).toFixed(1)}h`;
+    }
+
+    function toggleStatsRange(range) {
+      activeStatsRange = range;
+      const btnWk = document.getElementById('stats-range-week');
+      const btnMth = document.getElementById('stats-range-month');
+      
+      if (range === 'week') {
+        btnWk.style.backgroundColor = '#FFFFFF';
+        btnWk.style.color = 'var(--text-main)';
+        btnWk.style.boxShadow = 'var(--shadow-sm)';
+        btnMth.style.backgroundColor = 'transparent';
+        btnMth.style.color = 'var(--text-muted)';
+      } else {
+        btnWk.style.backgroundColor = 'transparent';
+        btnWk.style.color = 'var(--text-muted)';
+        btnWk.style.boxShadow = 'none';
+        btnMth.style.backgroundColor = '#FFFFFF';
+        btnMth.style.color = 'var(--text-main)';
+        btnMth.style.boxShadow = 'var(--shadow-sm)';
+      }
+      
+      renderAnalytics();
+    }
+
+    function highlightBar(barEl, hrs) {
+      document.querySelectorAll('#page-8 .active-bar').forEach(el => {
+        el.style.backgroundColor = '#CBD5E1';
+        el.classList.remove('active-bar');
+      });
+      barEl.style.backgroundColor = 'var(--primary)';
+      barEl.classList.add('active-bar');
+      document.getElementById('chart-hint').innerHTML = `Focus logged: <strong style="color:var(--primary);">${hrs} hours</strong>`;
+    }
+
+    function downloadAnalyticsReport() {
+      const btn = document.querySelector('#page-8 button');
+      const originalText = btn.textContent;
+      
+      btn.disabled = true;
+      btn.innerHTML = `<span style="display:inline-block; width:12px; height:12px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation: pulse 0.8s linear infinite; margin-right:6px;"></span> Compiling PDF...`;
+      
+      setTimeout(() => {
+        btn.innerHTML = `✓ Downloaded`;
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = originalText;
+          const isPt = state.currentLanguage === 'pt';
+          const isCh = state.currentLanguage === 'ch';
+          const title = isPt ? "Relatório Baixado" : (isCh ? "Xiviko Xi Khafiwile" : "Report Downloaded");
+          const body = isPt ? "O relatório em PDF foi compilado com sucesso." : (isCh ? "Xiviko xa PDF xi hlayisiwile eka downloads." : "PDF report compiled and saved successfully.");
+          openAppModal(title, body, () => {
+            closeAppModal();
+          });
+        }, 1000);
+      }, 1500);
+    }
+
+    /* ==================================================== */
+    /* SCREEN 9: SETTINGS PREFERENCES                       */
+    /* ==================================================== */
+    function renderSettings() {
+      document.getElementById('pref-focus-val').textContent = `${state.focusLength}m`;
+      document.getElementById('pref-break-val').textContent = `${state.breakLength}m`;
+      
+      // Update feedback active state
+      document.querySelectorAll('[id^="feed-"]').forEach(el => {
+        const type = el.id.split('-')[1];
+        if (state.feedbackStyle.includes(type)) {
+          el.classList.add('active-chip');
+        } else {
+          el.classList.remove('active-chip');
+        }
+      });
+    }
+
+    /* ==================================================== */
+    /* APP DIALOG SYSTEM (MODALS)                           */
+    /* ==================================================== */
+    let currentModalAction = null;
+    
+    function openAppModal(title, text, confirmCallback) {
+      document.getElementById('app-modal-title').textContent = title;
+      document.getElementById('app-modal-text').textContent = text;
+      document.getElementById('app-modal').style.display = 'flex';
+      
+      currentModalAction = confirmCallback;
+      
+      const confirmBtn = document.getElementById('app-modal-confirm-btn');
+      confirmBtn.onclick = () => {
+        if (currentModalAction) currentModalAction();
+      };
+    }
+    
+    function closeAppModal() {
+      document.getElementById('app-modal').style.display = 'none';
+      currentModalAction = null;
+    }
+    
+    function resetAppDatabase() {
+      openAppModal("Reset Database", "Are you sure you want to reset the database? This will erase all custom subjects and task schedules.", () => {
+        localStorage.removeItem('kukula_db');
+        state = JSON.parse(JSON.stringify(defaultState));
+        closeAppModal();
+        gotoPage(0);
+      });
+    }
+
+    /* ==================================================== */
+    /* EXTRA EVENT HANDLERS & FUNCTIONALITY IMPROVEMENTS   */
+    /* ==================================================== */
+    function inspectTask(taskId) {
+      state.inspectedTaskId = taskId;
+      saveStateToLocal();
+      gotoPage(5);
+    }
+
+    function toggleOfflineMode() {
+      state.offlineMode = !state.offlineMode;
+      saveStateToLocal();
+      updateOfflineUI();
+    }
+
+    function updateOfflineUI() {
+      const badge = document.getElementById('dashboard-offline-badge');
+      const dot = badge.querySelector('.status-dot');
+      const text = document.getElementById('dashboard-offline-text');
+      
+      const isPt = state.currentLanguage === 'pt';
+      const isCh = state.currentLanguage === 'ch';
+
+      if (state.offlineMode) {
+        badge.style.backgroundColor = 'var(--danger-light)';
+        badge.style.borderColor = '#FCA5A5';
+        badge.style.color = 'var(--danger-text)';
+        dot.style.backgroundColor = 'var(--danger)';
+        text.textContent = isPt ? 'Modo Offline' : (isCh ? 'Offline Mode' : 'Offline Mode');
+      } else {
+        badge.style.backgroundColor = 'var(--success-light)';
+        badge.style.borderColor = '#A7F3D0';
+        badge.style.color = '#065F46';
+        dot.style.backgroundColor = 'var(--success)';
+        text.textContent = isPt ? 'SIGES Sincronizado ✓' : (isCh ? 'SIGES Linked ✓' : 'SIGES Synced ✓');
+      }
+    }
+
+    function toggleFeedback(style) {
+      if (style === 'silent') {
+        state.feedbackStyle = ['silent'];
+      } else {
+        state.feedbackStyle = state.feedbackStyle.filter(s => s !== 'silent');
+        if (state.feedbackStyle.includes(style)) {
+          state.feedbackStyle = state.feedbackStyle.filter(s => s !== style);
+        } else {
+          state.feedbackStyle.push(style);
+        }
+        if (state.feedbackStyle.length === 0) {
+          state.feedbackStyle = ['silent'];
+        }
+      }
+      saveStateToLocal();
+      renderSettings();
+    }
+
+    function adjustPrefTimer(pref, amount) {
+      if (pref === 'focusLength') {
+        state.focusLength = Math.max(5, Math.min(60, state.focusLength + amount));
+        state.timerSecondsRemaining = state.focusLength * 60;
+      } else if (pref === 'breakLength') {
+        state.breakLength = Math.max(1, Math.min(30, state.breakLength + amount));
+      }
+      saveStateToLocal();
+      renderSettings();
+    }
+  </script>
+</body>
+</html>
