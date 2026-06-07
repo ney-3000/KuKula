@@ -1453,9 +1453,18 @@
     /* SCREEN 0: LOGIN & SECURITY CREDENTIALS               */
     /* ==================================================== */
     function simulateLoadingLogin(btnEl) {
+      const lang = state.currentLanguage;
       const originalText = btnEl.innerHTML;
       btnEl.disabled = true;
-      btnEl.innerHTML = `<span style="display:inline-block; width:12px; height:12px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation: pulse 0.8s linear infinite; margin-right:6px;"></span> Nghena...`;
+      
+      let loadingText = "Logging in...";
+      if (lang === 'pt') {
+        loadingText = "A entrar...";
+      } else if (lang === 'ch') {
+        loadingText = "Nghena...";
+      }
+      
+      btnEl.innerHTML = `<span style="display:inline-block; width:12px; height:12px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation: pulse 0.8s linear infinite; margin-right:6px;"></span> ${loadingText}`;
       
       setTimeout(() => {
         btnEl.disabled = false;
