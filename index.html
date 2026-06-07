@@ -786,13 +786,13 @@
     <div class="page" id="page-6" style="background:linear-gradient(180deg, #093161 0%, #031D3D 100%);">
       <!-- Dynamic Island Widget -->
       <div id="dynamic-island" class="iphone-dynamic-island" onclick="toggleIslandWidget()">
-        <span style="color:#4CD964;" id="island-timer-text">● 24:15</span>
-        <div style="width:12px;height:12px;background:#1D63B8;border-radius:50%;"></div>
+        <span style="color:#4CD964;" id="island-timer-text">▶ 24:15</span>
+        <div style="width:14px; height:14px; background:#1D63B8; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#FFFFFF; font-family:'Outfit',sans-serif; font-size:8px; font-weight:bold; line-height:1;">K</div>
       </div>
       
       <div class="page-content" style="padding: 20px 24px 24px 24px; justify-content: space-between; align-items: center; text-align: center; color: white;">
         <div style="margin-top:10px;">
-          <span class="app-btn-outline" style="background-color:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#FFFFFF; padding:6px 14px; border-radius:9999px; font-size:11px; font-weight:700; width:auto; display:inline-block; margin-bottom:12px;" data-translate="focusingAI">Focusing on AI</span>
+          <span id="focus-subject-badge" class="app-btn-outline" style="background-color:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#FFFFFF; padding:6px 14px; border-radius:9999px; font-size:11px; font-weight:700; width:auto; display:inline-block; margin-bottom:12px;">Focusing on AI</span>
           <h2 style="font-size:22px; font-weight:800; line-height:1.3; color:#FFFFFF;" id="focus-task-title">Neural Networks Assignment</h2>
         </div>
         
@@ -966,7 +966,7 @@
         <!-- Reminder Preview Notification Card -->
         <div class="app-card-gray" style="margin-bottom:20px; border-left: 3px solid var(--primary);">
           <h3 style="font-size:11px; font-weight:800; color:var(--text-main); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;" data-translate="reminderPreview">Reminder Preview</h3>
-          <div style="background:#FFFFFF; border:1px solid var(--border-color); border-radius:12px; padding:12px; display:flex; gap:10px; box-shadow:var(--shadow-sm); position:relative;">
+          <div style="background:#FFFFFF; border:1px solid var(--border-color); border-radius:12px; padding:12px; display:flex; gap:10px; box-shadow:var(--shadow-sm); position:relative; cursor:pointer;" onclick="launchFocusSession()">
             <div style="width:28px; height:28px; background:var(--primary); border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
             </div>
@@ -1002,6 +1002,11 @@
                 <button onclick="adjustPrefTimer('breakLength', 1)" class="app-btn-outline" style="width:28px; height:28px; padding:0; border-radius:6px; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center;">+</button>
               </div>
             </div>
+            <div style="height:1px; background-color:var(--border-color);"></div>
+            <button class="app-btn app-btn-outline" onclick="launchFocusSession()" style="width:100%; padding:10px; font-size:13px; border-color:var(--primary); color:var(--primary); font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;" data-translate="beginFocus">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Begin Focus Session
+            </button>
           </div>
         </div>
         
@@ -1425,6 +1430,7 @@
 
       // Refresh data
       translateUI();
+      if (pageIdx === 1) renderSubjectsOnboarding();
       if (pageIdx === 2) renderDashboardTasks();
       if (pageIdx === 3) {
         const lang = state.currentLanguage;
@@ -1444,6 +1450,7 @@
       }
       if (pageIdx === 4) renderCalendarGrid();
       if (pageIdx === 5) renderTaskDetails();
+      if (pageIdx === 6) renderFocusMode();
       if (pageIdx === 7) renderSubjectManager();
       if (pageIdx === 8) renderAnalytics();
       if (pageIdx === 9) renderSettings();
@@ -2106,8 +2113,15 @@
     /* SCREEN 6: FOCUS MODE POMODORO TIMER                  */
     /* ==================================================== */
     function launchFocusSession() {
-      const task = state.tasks.find(t => t.id === state.inspectedTaskId) || state.tasks[3];
-      document.getElementById('focus-task-title').textContent = task.name;
+      let task = state.tasks.find(t => t.id === state.inspectedTaskId);
+      if (!task) {
+        task = state.tasks.find(t => !t.completed) || state.tasks[0];
+      }
+      if (!task) {
+        task = { id: 999, name: "General Focus Session", subject: "HCI" };
+      }
+      state.inspectedTaskId = task.id;
+      saveStateToLocal();
       
       state.timerSecondsRemaining = state.focusLength * 60;
       updateFocusTimerUI();
@@ -2125,7 +2139,7 @@
       } else {
         // Start timer
         state.isTimerRunning = true;
-        btn.textContent = state.currentLanguage === 'pt' ? "Pausar Foco" : (state.currentLanguage === 'ch' ? "Pause Focus" : "Pause Focus");
+        btn.textContent = state.currentLanguage === 'pt' ? "Pausar Foco" : (state.currentLanguage === 'ch' ? "Yimisa Foco" : "Pause Focus");
         
         state.timerInterval = setInterval(() => {
           state.timerSecondsRemaining--;
@@ -2153,7 +2167,7 @@
       const timeStr = `${mins}:${secs < 10 ? '0' + secs : secs}`;
       
       document.getElementById('focus-timer-text').textContent = timeStr;
-      document.getElementById('island-timer-text').textContent = `● ${timeStr}`;
+      document.getElementById('island-timer-text').textContent = `▶ ${timeStr}`;
       
       // Update circle progress
       const maxSecs = state.focusLength * 60;
@@ -2176,12 +2190,46 @@
       document.getElementById('timer-stroke').setAttribute('stroke-dashoffset', 0);
       document.getElementById('focus-timer-text').textContent = `${state.focusLength}:00`;
       
-      gotoPage(5);
+      if (state.inspectedTaskId && state.inspectedTaskId !== 999) {
+        gotoPage(5);
+      } else {
+        gotoPage(2);
+      }
     }
     
     function toggleIslandWidget() {
       const island = document.getElementById('dynamic-island');
       island.classList.toggle('island-expanded');
+    }
+
+    function getLocalizedFocusingText(subjectName) {
+      const lang = state.currentLanguage;
+      const localizedSubj = getLocalizedSubjectName(subjectName);
+      if (lang === 'pt') {
+        return `Focado em ${localizedSubj}`;
+      } else if (lang === 'ch') {
+        return `U fambe hi ${localizedSubj}`;
+      }
+      return `Focusing on ${localizedSubj}`;
+    }
+
+    function renderFocusMode() {
+      let task = state.tasks.find(t => t.id === state.inspectedTaskId);
+      if (!task) {
+        task = state.tasks.find(t => !t.completed) || state.tasks[0];
+      }
+      if (!task) {
+        task = { id: 999, name: "General Focus Session", subject: "HCI" };
+      }
+      
+      document.getElementById('focus-task-title').textContent = task.name;
+      
+      const badge = document.getElementById('focus-subject-badge');
+      if (badge) {
+        badge.textContent = getLocalizedFocusingText(task.subject);
+      }
+      
+      updateFocusTimerUI();
     }
 
     /* ==================================================== */
@@ -2504,6 +2552,9 @@
       saveStateToLocal();
       renderSettings();
     }
+
+    // Initialize the app state on page load
+    changeLang(state.currentLanguage);
   </script>
 </body>
 </html>
