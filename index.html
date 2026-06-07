@@ -1029,6 +1029,14 @@
             <button class="app-btn-outline" id="feed-silent" onclick="toggleFeedback('silent')" style="padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700;" data-translate="silent">Silent (Visual only)</button>
           </div>
         </div>
+        
+        <!-- Account Settings / Log Out -->
+        <div style="margin-bottom:30px; margin-top:20px;">
+          <button class="app-btn" onclick="resetAppDatabase()" style="width:100%; padding:12px; font-size:13px; background-color:#FEF2F2; border:1px solid #FCA5A5; color:#EF4444; font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;" data-translate="logoutBtn">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Log Out & Reset App
+          </button>
+        </div>
       </div>
       
       <!-- Bottom Tab Nav -->
@@ -1164,6 +1172,9 @@
     // Reset intervals on load
     state.isTimerRunning = false;
     state.timerInterval = null;
+    
+    // Always start at Screen 0 (Login) on initial page load so users can re-experience the onboarding flow
+    state.activePage = 0;
 
     function saveStateToLocal() {
       localStorage.setItem('kukula_db', JSON.stringify(state));
@@ -1234,7 +1245,8 @@
         silent: "Silent (Visual only)",
         notifTitle: "Time to study HCI",
         notifBody: "Your 25-minute Pomodoro session is scheduled to start.",
-        tasksRemaining: "You have {n} tasks remaining"
+        tasksRemaining: "You have {n} tasks remaining",
+        logoutBtn: "Log Out & Reset App"
       },
       pt: {
         academicCompanion: "O teu companheiro académico inteligente",
@@ -1297,7 +1309,8 @@
         silent: "Silencioso (Visual apenas)",
         notifTitle: "Hora de estudar IHC",
         notifBody: "A sua sessão Pomodoro de 25 minutos está agendada para começar.",
-        tasksRemaining: "Tens {n} tarefas restantes"
+        tasksRemaining: "Tens {n} tarefas restantes",
+        logoutBtn: "Terminar Sessão e Redefinir"
       },
       ch: {
         academicCompanion: "Mutirhandzi wa wena wa dyondzo",
@@ -1360,7 +1373,8 @@
         silent: "Silent (Mee)",
         notifTitle: "Nkarhi wo dyondza IHC",
         notifBody: "Nkarhi wa wena wa 25-minute Pomodoro wu lava ku sungula.",
-        tasksRemaining: "U na {n} mintirho leyi seleke"
+        tasksRemaining: "U na {n} mintirho leyi seleke",
+        logoutBtn: "Humela & Vuyelerisa"
       }
     };
 
